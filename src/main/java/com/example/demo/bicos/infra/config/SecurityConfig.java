@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.demo.bicos.infra.handler.CustomAccessDeniedHandler;
+import com.example.demo.bicos.infra.handler.CustomAuthenticationEntryPoint;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -22,6 +25,10 @@ public class SecurityConfig {
 
     @Autowired
     SecurityFilter securityFilter;
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -31,15 +38,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(
-                "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/product").hasRole("ADMIN")
-                        
+                        .requestMatchers("/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/product").hasRole("ADMIN")    
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                    .accessDeniedHandler(customAccessDeniedHandler)
+                    .authenticationEntryPoint(customAuthEntryPoint)
+            )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
