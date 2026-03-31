@@ -15,6 +15,7 @@ import com.example.demo.bicos.controller.dto.LoginResponseDTO;
 import com.example.demo.bicos.controller.dto.RegisterDto;
 import com.example.demo.bicos.infra.config.TokenService;
 import com.example.demo.bicos.models.User;
+import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.UserRepository;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,7 +50,7 @@ public class AuthController {
         if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(data.login(), data.mail(), encryptedPassword, data.role());
+        User newUser = new User(data.login(), data.mail(), encryptedPassword, UserRole.FREELANCER);
 
         this.repository.save(newUser);
 
