@@ -1,8 +1,7 @@
 package com.example.demo.bicos.infra.config;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,6 +45,6 @@ public class TokenService {
     }
 
     private Instant genExpirationDate(){
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return Instant.now().plus(Duration.ofHours(2));
     }
 }
