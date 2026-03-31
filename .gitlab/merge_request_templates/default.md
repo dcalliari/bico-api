@@ -5,5 +5,5 @@
 - [ ] Testei localmente
 - [ ] ...
 
-/assing me
+/assign me
 /assign_reviewer @calliari
