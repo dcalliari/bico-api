@@ -62,14 +62,32 @@ public class CandidaturaService {
         if (aprovador.getRole() == UserRole.FREELANCER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-
         var candidatura = candidaturaRepo.findById(candidaturaId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        candidatura.setStatus(CandidaturaStatus.APROVADO);
-
-        candidaturaRepo.save(candidatura);
+        switch (aprovador.getRole()) {
+        case APROVADOR_N1 -> {
+            if (candidatura.getStatus() != CandidaturaStatus.PENDENTE) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Candidatura não está em etapa de N1");
+            }
+            candidatura.setStatus(CandidaturaStatus.AGUARDANDO_N2);
+        }
+        case APROVADOR_N2 -> {
+            if (candidatura.getStatus() != CandidaturaStatus.AGUARDANDO_N2) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Candidatura requer aprovação N1 primeiro");
+            }
+            candidatura.setStatus(CandidaturaStatus.AGUARDANDO_N3);
+        }
+        case APROVADOR_N3 -> {
+            if (candidatura.getStatus() != CandidaturaStatus.AGUARDANDO_N3) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Candidatura requer aprovação N2 primeiro");
+            }
+            candidatura.setStatus(CandidaturaStatus.APROVADO); 
+        }
     }
+
+    candidaturaRepo.save(candidatura);
+}
 
     public void rejeitar(Long candidaturaId, String aprovadorId) {
 
