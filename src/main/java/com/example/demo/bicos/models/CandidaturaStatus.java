@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public enum CandidaturaStatus {
     
     PENDENTE("P", "Pendente"),
+    AGUARDANDO_N2("N2", "Aguardando N2"),
+    AGUARDANDO_N3("N3", "Aguardando N3"),
     APROVADO("A", "Aprovado"),
     REJEITADO("R", "Rejeitado"),
     CONFIRMADO ("C","Confirmado");
