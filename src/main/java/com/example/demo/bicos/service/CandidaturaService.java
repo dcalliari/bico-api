@@ -30,7 +30,7 @@ public class CandidaturaService {
         this.bicosRepo = bicosRepo;
     }
 
-    public Long candidatar(String userId, Long bicoId) {
+    public Long candidatar(Long bicoId, String userId) {
 
         var user = userRepo.findById(UUID.fromString(userId))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
