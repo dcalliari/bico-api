@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.bicos.controller.dto.ListUsersDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
+import com.example.demo.bicos.controller.dto.UpdateUserRoleDto;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.UserService;
 
@@ -67,5 +69,16 @@ public class UserController {
         userService.deleteById(userId);
         return ResponseEntity.noContent().build();
     }  
+
+    @PreAuthorize("hasRole('APROVADOR_N3')")
+    @PatchMapping("/{userId}/role")
+    @Operation(summary="Atualizar role do usuário (APROVADOR_N3)")
+    public ResponseEntity<Void> updateUserRole(
+    @PathVariable String userId,
+    @RequestBody UpdateUserRoleDto dto) {
+
+    userService.updateUserRole(userId, dto);
+    return ResponseEntity.noContent().build();
+}
     
 }

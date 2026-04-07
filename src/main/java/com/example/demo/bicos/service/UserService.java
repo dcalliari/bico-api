@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
+import com.example.demo.bicos.controller.dto.UpdateUserRoleDto;
 import com.example.demo.bicos.models.Bicos;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.models.UserRole;
@@ -116,5 +117,15 @@ public class UserService {
                 .map(ad -> new GetBicosByIdDto(ad.getId().toString(), ad.getName(),ad.getDescription(),ad.getCity(),ad.getPrice(), ad.getCreatedAt(), ad.getUpdatedAt()))
                 .toList();
     }
+
+    public void updateUserRole(String userId, UpdateUserRoleDto dto) {
+    var id = UUID.fromString(userId);
+
+    var user = userRepo.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    user.setRole(dto.role());
+    userRepo.save(user);
+}
     
 }
