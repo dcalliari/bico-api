@@ -50,10 +50,9 @@ public class UserController {
 
     @Operation(summary = "Buscar usuário por ID")
     @GetMapping("/{userId}")
-        public ResponseEntity<User> getUserById(@PathVariable("userId") String userId) {
-        var user = userService.getUserById(userId);
-       
-        return user.map(ResponseEntity::ok)
+        public ResponseEntity<ListUsersDto> getUserById(@PathVariable("userId") String userId) {
+        return userService.getUserById(userId)
+           .map(user -> ResponseEntity.ok(new ListUsersDto(user)))
                .orElseGet(() -> ResponseEntity.notFound().build());
         }
     
