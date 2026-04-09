@@ -84,6 +84,7 @@ public class CandidaturaService {
             hist.setMotivo("Aprovação final concluída pelo N3");
             histAprovacaoRepo.save(hist);
         }
+        default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não tem permissão para aprovar");
         }
 
         candidaturaRepo.save(candidatura);
