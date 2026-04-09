@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
+import com.example.demo.bicos.controller.dto.UpdateUserByIdDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
 import com.example.demo.bicos.controller.dto.UpdateUserRoleDto;
 import com.example.demo.bicos.models.Bicos;
@@ -20,32 +22,13 @@ import com.example.demo.bicos.repo.UserRepository;
 
 @Service
 public class UserService {
-    private final UserRepository userRepo;
-    private final BicosRepository bicosRepo;
 
-    public UserService(UserRepository userRepo, BicosRepository bicosRepo) {
-        this.userRepo = userRepo;
-        this.bicosRepo = bicosRepo;
-    }
+    @Autowired
+    private UserRepository userRepo;
     
-    // public UUID createUser(CreateUserDto createUserDto){
-        
-    //     var entity = new User(
-    //         UUID.randomUUID(),
-    //         createUserDto.username(), 
-    //         createUserDto.mail(), 
-    //         createUserDto.password(),
-    //         null,
-    //         null, 
-    //         null);
-
-    //     entity.setRole(UserRole.FREELANCER);
-
-    //     var userSaved = userRepo.save(entity);
-
-    //     return userSaved.getId();
-    // }
-
+    @Autowired
+    private BicosRepository bicosRepo;
+    
     public List<User> listUsers(){
         return userRepo.findAll();
     }
@@ -64,7 +47,7 @@ public class UserService {
     userRepo.deleteById(id);
     }
 
-    public void updateUserById(String userId, UpdateUserDto updateUserDto){
+    public void updateUserById(String userId, UpdateUserByIdDto updateUserbyIdDto){
         var id = UUID.fromString(userId);
 
         var userEntity = userRepo.findById(id);
@@ -72,12 +55,12 @@ public class UserService {
         if (userEntity.isPresent()){
             var user = userEntity.get();
 
-            if (updateUserDto.login() != null){
-                user.setLogin(updateUserDto.login());
+            if (updateUserbyIdDto.login() != null){
+                user.setLogin(updateUserbyIdDto.login());
             }
 
-            if (updateUserDto.mail() != null){
-                user.setMail(updateUserDto.mail());
+            if (updateUserbyIdDto.mail() != null){
+                user.setMail(updateUserbyIdDto.mail());
             }
 
             userRepo.save(user);
@@ -126,6 +109,24 @@ public class UserService {
 
     user.setRole(dto.role());
     userRepo.save(user);
+}
+
+    public void updateUser(UUID id, UpdateUserDto updateUserDto) {
+    var userEntity = userRepo.findById(id);
+
+    if (userEntity.isPresent()) {
+        var user = userEntity.get();
+
+        if (updateUserDto.login() != null) {
+            user.setLogin(updateUserDto.login());
+        }
+
+        if (updateUserDto.mail() != null) {
+            user.setMail(updateUserDto.mail());
+        }
+
+        userRepo.save(user);
+    }
 }
     
 }
