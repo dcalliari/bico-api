@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.bicos.controller.dto.RejectMotiveDto;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.CandidaturaService;
 
@@ -46,10 +47,10 @@ public class CandidaturaController {
     @Operation(summary="Rejeitar uma candidatura")
     @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
     @PostMapping("/{id}/rejeitar")
-    public ResponseEntity<Void> rejeitar(@PathVariable Long id){
+    public ResponseEntity<Void> rejeitar(@PathVariable Long id, RejectMotiveDto dto){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var aprovador = (User) authentication.getPrincipal();
-        candidaturaService.rejeitar(id, aprovador.getId().toString());
+        candidaturaService.rejeitar(id, aprovador.getId().toString(), dto.motivo());
         return ResponseEntity.ok().build();
     }
 

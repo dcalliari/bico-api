@@ -90,7 +90,7 @@ public class CandidaturaService {
     }
 
     
-    public void rejeitar(Long candidaturaId, String aprovadorId) {
+    public void rejeitar(Long candidaturaId, String aprovadorId, String motivo) {
 
         var candidatura = candidaturaRepo.findById(candidaturaId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -124,6 +124,7 @@ public class CandidaturaService {
     historico.setCandidatura(candidatura);
     historico.setUser(aprovador);
     historico.setDecisao(HistAprovacaoStatus.REJEITADO);
+    historico.setMotivo("Rejeitado pelo "+ aprovador.getRole()+" devido ao seguinte motivo: "+ motivo);
     
 
     histAprovacaoRepo.save(historico);
