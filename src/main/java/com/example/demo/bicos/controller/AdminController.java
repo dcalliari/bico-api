@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name="Admin")
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
     
     @Autowired

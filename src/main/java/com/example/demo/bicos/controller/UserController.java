@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name="Usuários")
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
     
     @Autowired
@@ -57,5 +57,5 @@ public class UserController {
     userService.updateUser(user.getId(), updateUserDto);
     
     return ResponseEntity.ok().build();
-}
+    }
 }

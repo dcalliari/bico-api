@@ -1,8 +1,11 @@
 package com.example.demo.bicos.models;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +16,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -26,7 +31,7 @@ public class Candidatura {
     @JoinColumn(name = "user_id")
     private User user;
     
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "bicos_id")
     private Bicos bicos;
 
@@ -37,6 +42,10 @@ public class Candidatura {
     @CreationTimestamp
     @Column(name="data_solicitacao")
     private Instant dataSolicitacao;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "candidatura")
+    private List<HistAprovacao> histAprovacao;
 
     public Candidatura() {
     }
@@ -89,6 +98,12 @@ public class Candidatura {
         this.dataSolicitacao = dataSolicitacao;
     }
 
+    public List<HistAprovacao> getHistAprovacao() {
+        return histAprovacao;
+    }
+
+    public void setHistAprovacao(List<HistAprovacao> histAprovacao) {
+        this.histAprovacao = histAprovacao;
+    }
     
 }
-  //candidatura - fk_user, fk_bico, status enum-(confirmado,pendente, aprovado, rejeitado), data_solicitacao,

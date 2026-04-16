@@ -13,6 +13,7 @@ import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.bicos.controller.dto.ErrorDto;
 
@@ -48,5 +49,14 @@ public class GlobalExceptionHandler {
         
         return ErrorResponse.builder(ex, problemDetail).build();
     }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorDto> handleResponseStatusException(ResponseStatusException ex) {
+    String mensagem = ex.getReason() != null ? ex.getReason() : "Erro na operação";
+    
+    ErrorDto error = new ErrorDto(mensagem, ex.getStatusCode().value());
+    
+    return ResponseEntity.status(ex.getStatusCode()).body(error);
+}
 
 }

@@ -94,8 +94,6 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    //candidatura - fk_user, fk_bico, status enum-(confirmado,pendente, aprovado, rejeitado), data_solicitacao, 
-//historico_aprov - fk_candidatura, fk_user_aprovador, decisao enum(aprovado ou rejeitado), motivo, data_aprovacao 
     public UUID getId() {
         return id;
     }

@@ -35,7 +35,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary="Logar")
-    public ResponseEntity login(@RequestBody @Valid LoginDto data){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginDto data){
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
@@ -46,7 +46,7 @@ public class AuthController {
 
     @Operation(summary="Registrar usuário")
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDto data){
+    public ResponseEntity<RegisterDto> register(@RequestBody @Valid RegisterDto data){
         if(this.repository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());

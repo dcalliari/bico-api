@@ -3,7 +3,6 @@ package com.example.demo.bicos.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-//status enum-(confirmado,pendente, aprovado, rejeitado),
 @JsonFormat(shape= JsonFormat.Shape.OBJECT)
 public enum CandidaturaStatus {
     

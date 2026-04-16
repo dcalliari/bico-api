@@ -1,6 +1,8 @@
 package com.example.demo.bicos.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,16 +17,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name="Candidatura")
-@RequestMapping("/api/candidaturas")
+@RequestMapping("/api/v1/candidaturas")
 public class CandidaturaController {
 
-    private final CandidaturaService candidaturaService;
-
-    public CandidaturaController(CandidaturaService candidaturaService) {
-        this.candidaturaService = candidaturaService;
-    }
+    @Autowired
+    private CandidaturaService candidaturaService;
 
     @Operation(summary="Canditatar-se em um bico")
+    @PreAuthorize("hasAnyRole('FREELANCER', 'ADMIN')")
     @PostMapping("/{id}/candidatar")
     public ResponseEntity<Void> candidatar(@PathVariable Long id){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -34,6 +34,7 @@ public class CandidaturaController {
     }
 
     @Operation(summary="Aprovar uma candidatura")
+    @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
     @PostMapping("/{id}/aprovar")
     public ResponseEntity<Void> aprovar(@PathVariable Long id){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -43,6 +44,7 @@ public class CandidaturaController {
     }
 
     @Operation(summary="Rejeitar uma candidatura")
+    @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
     @PostMapping("/{id}/rejeitar")
     public ResponseEntity<Void> rejeitar(@PathVariable Long id){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
