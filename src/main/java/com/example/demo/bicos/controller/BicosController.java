@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.ListBicosDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
+import com.example.demo.bicos.controller.dto.UpdateBicosDto;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.BicosService;
 
@@ -44,7 +47,7 @@ public class BicosController {
 
     @PostMapping("/registrar")
     @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
-    @Operation(summary="Registrar bicos")
+    @Operation(summary="Registrar bicos", description = "Filtros: FAXINA, ENTREGAS, MANUTENCAO, TI, EVENTOS, OUTROS.")
     public ResponseEntity<Void> registerBicoById(@RequestBody RegisterBicosDto registerBicosDto){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var user = (User) authentication.getPrincipal();
@@ -57,5 +60,25 @@ public class BicosController {
     public ResponseEntity<List<GetBicosByIdDto>> getBicos(@PathVariable("userId") String userId){
         var bicos = bicosService.getBicosById(userId);
         return ResponseEntity.ok(bicos);
+    }
+
+    @Operation(summary = "Deletar bicos por ID")
+    @DeleteMapping("/{bicosId}/deletar")
+    public ResponseEntity<Void> deleteBicos(@PathVariable Long bicosId){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var user = (User) authentication.getPrincipal();
+        bicosService.deleteBicos(user.getId().toString(), bicosId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Atualizar bicos por ID")
+    @PatchMapping("/{bicosId}/atualizar")
+    public ResponseEntity<Void> updateBicos (@PathVariable Long bicosId, @RequestBody UpdateBicosDto updateBicosDto){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var user = (User) authentication.getPrincipal();
+        
+        bicosService.updateBicos(user.getId().toString(), bicosId, updateBicosDto);
+        
+        return ResponseEntity.noContent().build();
     }
 }
