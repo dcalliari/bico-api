@@ -12,10 +12,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
-//historico_aprov - fk_candidatura, fk_user_aprovador, decisao enum(aprovado ou rejeitado), motivo, data_aprovacao 
 @Entity
 @Table(name="hist_aprov")
 public class HistAprovacao {
@@ -26,6 +26,10 @@ public class HistAprovacao {
     @OneToOne
     @JoinColumn(name = "candidatura_id")
     private Candidatura candidatura;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name="decisao")
@@ -41,10 +45,11 @@ public class HistAprovacao {
     public HistAprovacao() {
     }
 
-    public HistAprovacao(Long id, Candidatura candidatura, HistAprovacaoStatus decisao, String motivo,
+    public HistAprovacao(Long id, Candidatura candidatura, User user, HistAprovacaoStatus decisao, String motivo,
             Instant dataAprovacao) {
         this.id = id;
         this.candidatura = candidatura;
+        this.user = user;
         this.decisao = decisao;
         this.motivo = motivo;
         this.dataAprovacao = dataAprovacao;
@@ -64,6 +69,14 @@ public class HistAprovacao {
 
     public void setCandidatura(Candidatura candidatura) {
         this.candidatura = candidatura;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public HistAprovacaoStatus getDecisao() {
