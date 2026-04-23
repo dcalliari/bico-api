@@ -1,9 +1,9 @@
 package com.example.demo.bicos.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
@@ -34,16 +35,16 @@ public class BicosController {
     @Autowired
     private BicosService bicosService;
 
-    @Operation(summary = "Listar bicos")
+    @Operation(summary = "Listar bicos com filtro por cidade")
     @GetMapping
-    public ResponseEntity<List<ListBicosDto>> getAllBicos(){
-        List<ListBicosDto> users = bicosService.listBicos()
-        .stream()
-        .map(ListBicosDto::new)
-        .collect(Collectors.toList());
-
-    return ResponseEntity.ok(users);
-    }
+    public ResponseEntity<List<ListBicosDto>> getAllBicos(@RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false, defaultValue= "Belém") String city) {
+    
+    Page<ListBicosDto> bicosPage = bicosService.findAllPaginacao(page, size, city);
+    
+    return ResponseEntity.ok(bicosPage.getContent());
+}
 
     @PostMapping("/registrar")
     @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
