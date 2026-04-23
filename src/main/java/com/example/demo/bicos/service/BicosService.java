@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
+import com.example.demo.bicos.controller.dto.ListBicosDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
+import com.example.demo.bicos.controller.dto.UpdateBicosDto;
+import com.example.demo.bicos.controller.dto.UpdateUserRoleDto;
 import com.example.demo.bicos.models.Bicos;
 import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
@@ -44,6 +47,9 @@ public class BicosService {
         registerBicosDto.description(),
         registerBicosDto.city(),
         registerBicosDto.price(),
+        registerBicosDto.bicosFilter(),
+        registerBicosDto.dataHoraServico(),
+        null,
         null,
         null
     );
@@ -58,7 +64,60 @@ public class BicosService {
         
        return user.getBicos()
                 .stream()
-                .map(ad -> new GetBicosByIdDto(ad.getId().toString(), ad.getName(),ad.getDescription(),ad.getCity(),ad.getPrice(), ad.getCreatedAt(), ad.getUpdatedAt()))
+                .map(ad -> new GetBicosByIdDto(ad.getId().toString(), ad.getName(),ad.getDescription(),ad.getCity(),ad.getPrice(),ad.getBicosFilter(), ad.getDataHoraServico(), ad.getCreatedAt(), ad.getUpdatedAt(), ad.getDeletedAt()))
                 .toList();
     }
+
+    public void deleteBicos(String userId, Long bicoId){
+
+        var user = userRepo.findById(UUID.fromString(userId))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var bicos = bicosRepo.findById(bicoId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!bicos.getUser().getId().equals(user.getId())) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para deletar este bico");
+    }
+        bicosRepo.delete(bicos);
+}
+
+    public void updateBicos(String userId, Long bicoId, UpdateBicosDto dto) {
+    
+        var user = userRepo.findById(UUID.fromString(userId))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var bicos = bicosRepo.findById(bicoId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!bicos.getUser().getId().equals(user.getId())) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para atualizar este bico");
+    }   
+        if (dto.name() != null) {
+            bicos.setName(dto.name());
+        }
+
+        if (dto.description() != null) {
+            bicos.setDescription(dto.description());
+        }
+        
+        if (dto.city() != null) {
+            bicos.setCity(dto.city());
+        }
+
+        if (dto.price() != null){
+            bicos.setPrice(dto.price());
+        }
+
+        if(dto.bicosFilter() != null){
+            bicos.setBicosFilter(dto.bicosFilter());
+        }
+
+        if(dto.dataHoraServico() != null){
+            bicos.setDataHoraServico(dto.dataHoraServico());
+        }
+
+        bicosRepo.save(bicos);
+    }
+           
 }
