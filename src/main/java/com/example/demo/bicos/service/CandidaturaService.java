@@ -1,5 +1,6 @@
 package com.example.demo.bicos.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.models.Candidatura;
 import com.example.demo.bicos.models.CandidaturaStatus;
 import com.example.demo.bicos.models.HistAprovacao;
@@ -130,7 +132,25 @@ public class CandidaturaService {
 
     histAprovacaoRepo.save(historico);
 }
+
+    public List<CandidaturasDto> minhasCandidaturas(String userId){
+
+        return candidaturaRepo.findByUserId(UUID.fromString(userId));
+    }
     
+    public List<CandidaturasDto> nivelPendente(String aprovadorId) {
+    var aprovador = userRepo.findById(UUID.fromString(aprovadorId))
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aprovador não encontrado"));
+
+    CandidaturaStatus status = switch (aprovador.getRole()) {
+        case APROVADOR_N1 -> CandidaturaStatus.PENDENTE;
+        case APROVADOR_N2 -> CandidaturaStatus.AGUARDANDO_N2;
+        case APROVADOR_N3 -> CandidaturaStatus.AGUARDANDO_N3;
+        default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui perfil de aprovador");
+    };
+
+    return candidaturaRepo.findByStatus(status);
+}
 
     
 }

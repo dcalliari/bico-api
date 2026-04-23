@@ -1,14 +1,18 @@
 package com.example.demo.bicos.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.controller.dto.RejectMotiveDto;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.CandidaturaService;
@@ -54,4 +58,21 @@ public class CandidaturaController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary="Ver minhas candidaturas")
+    @GetMapping("/{userId}/listar")
+    public List<CandidaturasDto> listarCandidaturas() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var candidato = (User) authentication.getPrincipal();
+        return candidaturaService.minhasCandidaturas(candidato.getId().toString());
+    }
+
+
+    @Operation(summary="Ver candidaturas pendentes no meu nível")
+    @GetMapping("/{userId}/nivelPendente")
+    public List<CandidaturasDto> nivelPendente() {
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    var aprovador = (User) authentication.getPrincipal();
+    
+    return candidaturaService.nivelPendente(aprovador.getId().toString());
+}
 }
