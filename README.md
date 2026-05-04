@@ -56,11 +56,8 @@ src/main/java/com/example/demo/
 | POST | `/api/bicos/{userId}` | Criar bico para usuário |
 | GET | `/api/users` | Listar usuários |
 
-## Variáveis de Ambiente (Produção)
+## Configuração de Variáveis de Ambiente
 
+Copie o arquivo de exemplo e preencha com suas credenciais:
 ```bash
-export JWT_SECRET=sua-chave-secreta-segura
-export DB_URL=jdbc:postgresql://host:5432/bicos
-export DB_USER=postgres
-export DB_PASSWORD=senha-segura
-```
+cp .env.example .env
