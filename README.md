@@ -15,8 +15,36 @@ Backend REST API para a plataforma Bico Vagas, desenvolvida com Spring Boot.
 - Java 21+
 - Docker e Docker Compose
 - Maven (ou use o wrapper `./mvnw`)
+- Opcional (recomendado): `mise` para gerenciar versões de runtime
 
 ## Setup
+
+### Opção 1: Setup com `mise` (recomendado)
+
+1. **Instale o mise (se ainda não tiver):**
+   ```bash
+   curl https://mise.jdx.dev/install.sh | sh
+   ```
+
+2. **Adicione ao `~/.bashrc`:**
+   ```bash
+   eval "$(~/.local/bin/mise activate bash)"
+   ```
+
+3. **Recarregue o shell:**
+   ```bash
+   source ~/.bashrc
+   ```
+
+4. **Suba o banco e rode a aplicação:**
+   ```bash
+   docker-compose up -d
+   ./mvnw spring-boot:run
+   ```
+
+O Java 21 será ativado automaticamente com base no `mise.toml`.
+
+### Opção 2: Setup manual
 
 1. **Inicie o banco de dados:**
    ```bash
