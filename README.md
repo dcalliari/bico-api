@@ -39,10 +39,11 @@ Backend REST API para a plataforma Bico Vagas, desenvolvida com Spring Boot.
 4. **Suba o banco e rode a aplicação:**
    ```bash
    docker-compose up -d
-   ./mvnw spring-boot:run
+   mise run api
    ```
 
 O Java 21 será ativado automaticamente com base no `mise.toml`.
+O comando `mise run api` usa a task `api` definida no projeto e executa `./mvnw spring-boot:run`.
 
 ### Opção 2: Setup manual
 
