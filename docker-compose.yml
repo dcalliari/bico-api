@@ -7,12 +7,12 @@ services:
     restart: always
 
     environment:
-      POSTGRES_DB: ${CHAVE_DB}
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
     ports:
-      - "${CHAVE_PORT}:5432"
+      - "${DB_PORT}:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
