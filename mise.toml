@@ -1,0 +1,6 @@
+[tools]
+java = "21"
+"spring-boot" = "3.2.5"
+
+[tasks.api]
+run = "./mvnw spring-boot:run"
