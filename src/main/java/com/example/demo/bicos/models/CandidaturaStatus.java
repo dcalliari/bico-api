@@ -10,8 +10,7 @@ public enum CandidaturaStatus {
     AGUARDANDO_N2("N2", "Aguardando N2"),
     AGUARDANDO_N3("N3", "Aguardando N3"),
     APROVADO("A", "Aprovado"),
-    REJEITADO("R", "Rejeitado"),
-    CONFIRMADO ("C","Confirmado");
+    REJEITADO("R", "Rejeitado");
 
     private final String codigo;
     private final String descricao;

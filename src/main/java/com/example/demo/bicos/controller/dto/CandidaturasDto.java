@@ -4,6 +4,6 @@ import java.time.Instant;
 
 import com.example.demo.bicos.models.CandidaturaStatus;
 
-public record CandidaturasDto(Long id, CandidaturaStatus status, Instant dataSolicitacao) {
+public record CandidaturasDto(Long id, CandidaturaStatus status, Instant dataSolicitacao, String bicos) {
     
 }
