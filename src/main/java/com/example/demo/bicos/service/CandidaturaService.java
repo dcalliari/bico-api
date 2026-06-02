@@ -1,13 +1,17 @@
 package com.example.demo.bicos.service;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.bicos.controller.dto.CandidaturaPendenteDto;
 import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.models.Candidatura;
 import com.example.demo.bicos.models.CandidaturaStatus;
@@ -133,24 +137,39 @@ public class CandidaturaService {
     histAprovacaoRepo.save(historico);
 }
 
-    public List<CandidaturasDto> minhasCandidaturas(String userId){
-
-        return candidaturaRepo.findByUserId(UUID.fromString(userId));
+    public Page<CandidaturasDto> minhasCandidaturasPaginadas(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        UUID candidato = UUID.fromString(userId);
+        
+        return candidaturaRepo.findByUserId(candidato, pageable).map(c -> new CandidaturasDto(
+            c.getId(),
+            c.getStatus(),
+            c.getDataSolicitacao(),
+            c.getBicos().getName()
+        ));
     }
+
+    public Page<CandidaturaPendenteDto> nivelPendentePaginado(String aprovadorId, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
     
-    public List<CandidaturasDto> nivelPendente(String aprovadorId) {
     var aprovador = userRepo.findById(UUID.fromString(aprovadorId))
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Aprovador não encontrado"));
 
-    CandidaturaStatus status = switch (aprovador.getRole()) {
+    CandidaturaStatus statusAlvo = switch (aprovador.getRole()) {
         case APROVADOR_N1 -> CandidaturaStatus.PENDENTE;
         case APROVADOR_N2 -> CandidaturaStatus.AGUARDANDO_N2;
         case APROVADOR_N3 -> CandidaturaStatus.AGUARDANDO_N3;
-        default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui perfil de aprovador");
+        default -> throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não possui papel de aprovador");
     };
 
-    return candidaturaRepo.findByStatus(status);
+    return candidaturaRepo.findAllByStatus(statusAlvo, pageable).map(c -> new CandidaturaPendenteDto(
+        c.getId(),
+        c.getStatus(),
+        c.getUser().getLogin(), 
+        c.getBicos().getName(),  
+        c.getBicos().getBicosFilter().getFilter(), 
+        c.getBicos().getPrice()  
+    ));
 }
 
-    
 }
