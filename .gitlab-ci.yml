@@ -15,12 +15,7 @@ variables:
 .ci_deploy_registry_login:
   before_script:
     - env | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' | grep -v '^CI_COMMIT_MESSAGE=' | grep -v '^CI_COMMIT_TITLE=' | grep -v '^CI_COMMIT_DESCRIPTION=' > .env
-    - |
-      if [ -n "${REGISTRY_USERNAME:-}" ] && [ -n "${REGISTRY_PASSWORD:-}" ]; then
-        echo "${REGISTRY_PASSWORD}" | docker login --username "${REGISTRY_USERNAME}" --password-stdin "${CI_REGISTRY}"
-      else
-        echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
-      fi
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
 
 .build_tags:
   tags:
@@ -123,15 +118,16 @@ deploy_homol:
   extends: .deploy
   environment:
     name: homol
-    url: $APP_DOMAIN
   variables:
     DOCKER_IMAGE_TAG: homol
     STACK_NAME: bico-api-hm
+    API_PORT: "18080"
   needs:
     - build_homol
     - test_homol
   script:
     - export STACK_NAME="${STACK_NAME:-bico-api-hm}"
+    - docker pull "${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_TAG}"
     - docker stack deploy --with-registry-auth --compose-file=docker-compose.deploy.yml "${STACK_NAME}"
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
@@ -169,15 +165,16 @@ deploy_prod:
   extends: .deploy
   environment:
     name: production
-    url: $APP_DOMAIN
   variables:
     DOCKER_IMAGE_TAG: latest
     STACK_NAME: bico-api
+    API_PORT: "8080"
   needs:
     - build_prod
     - test_prod
   script:
     - export STACK_NAME="${STACK_NAME:-bico-api}"
+    - docker pull "${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_TAG}"
     - docker stack deploy --with-registry-auth --compose-file=docker-compose.deploy.yml "${STACK_NAME}"
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
