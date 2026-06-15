@@ -65,6 +65,7 @@ check-approval:
   extends:
     - .test_tags
   variables:
+    COMPOSE_PROJECT_NAME: bico-api-test-${CI_JOB_ID}
     DB_HOST: localhost
     DB_PORT: "5433"
     DB_NAME: bicos_test
@@ -76,12 +77,14 @@ check-approval:
     key: ${CI_PROJECT_NAME}-maven
     paths:
       - .m2/repository
+  before_script:
+    - docker compose -p "${COMPOSE_PROJECT_NAME}" -f docker/docker-compose.test.yml down -v --remove-orphans 2>/dev/null || true
   script:
-    - docker compose -f docker/docker-compose.test.yml up -d --wait postgres
+    - docker compose -p "${COMPOSE_PROJECT_NAME}" -f docker/docker-compose.test.yml up -d --wait postgres
     - chmod +x mvnw
     - ./mvnw test -B
   after_script:
-    - docker compose -f docker/docker-compose.test.yml down -v || true
+    - docker compose -p "${COMPOSE_PROJECT_NAME}" -f docker/docker-compose.test.yml down -v --remove-orphans || true
 
 .deploy:
   stage: deploy
