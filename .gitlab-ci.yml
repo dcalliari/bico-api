@@ -8,22 +8,19 @@ variables:
   DOCKER_IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
 
-.ci_deploy_setup:
+.ci_registry_login:
+  before_script:
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+
+.ci_deploy_registry_login:
   before_script:
     - env | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' | grep -v '^CI_COMMIT_MESSAGE=' | grep -v '^CI_COMMIT_TITLE=' | grep -v '^CI_COMMIT_DESCRIPTION=' > .env
     - |
-      docker login \
-        -u "${CI_REGISTRY_USER:-$REGISTRY_USERNAME}" \
-        -p "${CI_REGISTRY_PASSWORD:-$REGISTRY_PASSWORD}" \
-        "$CI_REGISTRY"
-
-.ci_build_setup:
-  before_script:
-    - |
-      docker login \
-        -u "${CI_REGISTRY_USER:-$REGISTRY_USERNAME}" \
-        -p "${CI_REGISTRY_PASSWORD:-$REGISTRY_PASSWORD}" \
-        "$CI_REGISTRY"
+      if [ -n "${REGISTRY_USERNAME:-}" ] && [ -n "${REGISTRY_PASSWORD:-}" ]; then
+        echo "${REGISTRY_PASSWORD}" | docker login --username "${REGISTRY_USERNAME}" --password-stdin "${CI_REGISTRY}"
+      else
+        echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+      fi
 
 .build_tags:
   tags:
@@ -50,15 +47,16 @@ check-approval:
 .build:
   stage: build
   extends:
-    - .ci_build_setup
+    - .ci_registry_login
     - .build_tags
   cache:
     key: ${CI_PROJECT_NAME}-maven
     paths:
       - .m2/repository
   script:
-    - docker compose -f docker-compose.build.yml build --build-arg CI_REGISTRY_IMAGE="$CI_REGISTRY_IMAGE" --build-arg DOCKER_IMAGE_TAG="$DOCKER_IMAGE_TAG"
-    - docker compose -f docker-compose.build.yml push
+    - docker compose -f docker-compose.build.yml build
+    - echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+    - docker push "${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_TAG}"
     - docker tag "${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_TAG}" "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}-${DOCKER_IMAGE_TAG}"
     - docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}-${DOCKER_IMAGE_TAG}"
 
@@ -88,7 +86,7 @@ check-approval:
 .deploy:
   stage: deploy
   extends:
-    - .ci_deploy_setup
+    - .ci_deploy_registry_login
     - .deploy_tags
   after_script:
     - docker stack ps "${STACK_NAME}" || true
