@@ -1,0 +1,62 @@
+services:
+  api:
+    image: ${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_TAG:-latest}
+    deploy:
+      placement:
+        constraints:
+          - node.labels.Services == true
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=traefik-public"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.routers.${STACK_NAME}.rule=Host(`${APP_DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}.entrypoints=http"
+        - "traefik.http.routers.${STACK_NAME}.middlewares=https-redirect@file"
+        - "traefik.http.routers.${STACK_NAME}_https.rule=Host(`${APP_DOMAIN}`)"
+        - "traefik.http.routers.${STACK_NAME}_https.entrypoints=https"
+        - "traefik.http.routers.${STACK_NAME}_https.middlewares=default-headers@file"
+        - "traefik.http.services.${STACK_NAME}_https.loadbalancer.server.port=8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    depends_on:
+      - postgres
+    networks:
+      - default
+      - traefik-public
+
+  postgres:
+    image: postgres:16-alpine
+    deploy:
+      placement:
+        constraints:
+          - node.labels.Services == true
+      replicas: 1
+      restart_policy:
+        condition: any
+        max_attempts: 3
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  traefik-public:
+    external: true

@@ -1,0 +1,191 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  GIT_CLEAN_FLAGS: none
+  DOCKER_IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+.ci_deploy_setup:
+  before_script:
+    - env | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' | grep -v '^CI_COMMIT_MESSAGE=' | grep -v '^CI_COMMIT_TITLE=' | grep -v '^CI_COMMIT_DESCRIPTION=' > .env
+    - |
+      docker login \
+        -u "${CI_REGISTRY_USER:-$REGISTRY_USERNAME}" \
+        -p "${CI_REGISTRY_PASSWORD:-$REGISTRY_PASSWORD}" \
+        "$CI_REGISTRY"
+
+.ci_build_setup:
+  before_script:
+    - |
+      docker login \
+        -u "${CI_REGISTRY_USER:-$REGISTRY_USERNAME}" \
+        -p "${CI_REGISTRY_PASSWORD:-$REGISTRY_PASSWORD}" \
+        "$CI_REGISTRY"
+
+.build_tags:
+  tags:
+    - shell
+
+.test_tags:
+  tags:
+    - shell
+
+.deploy_tags:
+  tags:
+    - ssh
+    - solar-srv1
+
+check-approval:
+  stage: .pre
+  image: alpine:latest
+  script:
+    - echo "MR precisa de revisão antes do merge"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  allow_failure: true
+
+.build:
+  stage: build
+  extends:
+    - .ci_build_setup
+    - .build_tags
+  cache:
+    key: ${CI_PROJECT_NAME}-maven
+    paths:
+      - .m2/repository
+  script:
+    - docker compose -f docker-compose.build.yml build --build-arg CI_REGISTRY_IMAGE="$CI_REGISTRY_IMAGE" --build-arg DOCKER_IMAGE_TAG="$DOCKER_IMAGE_TAG"
+    - docker compose -f docker-compose.build.yml push
+    - docker tag "${CI_REGISTRY_IMAGE}:${DOCKER_IMAGE_TAG}" "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}-${DOCKER_IMAGE_TAG}"
+    - docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BRANCH}-${DOCKER_IMAGE_TAG}"
+
+.test:
+  stage: test
+  extends:
+    - .test_tags
+  variables:
+    DB_HOST: localhost
+    DB_PORT: "5433"
+    DB_NAME: bicos_test
+    DB_USER: bicos
+    DB_PASSWORD: test
+    JWT_SECRET: ci-test-secret
+    ALLOWED_ORIGINS: http://localhost:3000
+  cache:
+    key: ${CI_PROJECT_NAME}-maven
+    paths:
+      - .m2/repository
+  script:
+    - docker compose -f docker/docker-compose.test.yml up -d --wait postgres
+    - chmod +x mvnw
+    - ./mvnw test -B
+  after_script:
+    - docker compose -f docker/docker-compose.test.yml down -v || true
+
+.deploy:
+  stage: deploy
+  extends:
+    - .ci_deploy_setup
+    - .deploy_tags
+  after_script:
+    - docker stack ps "${STACK_NAME}" || true
+
+build_homol:
+  extends: .build
+  environment:
+    name: homol
+  variables:
+    DOCKER_IMAGE_TAG: homol
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "homol"'
+
+test_homol:
+  extends: .test
+  needs:
+    - job: build_homol
+      optional: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "homol"'
+
+deploy_homol:
+  extends: .deploy
+  environment:
+    name: homol
+    url: $APP_DOMAIN
+  variables:
+    DOCKER_IMAGE_TAG: homol
+    STACK_NAME: bico-api-hm
+  needs:
+    - build_homol
+    - test_homol
+  script:
+    - export STACK_NAME="${STACK_NAME:-bico-api-hm}"
+    - docker stack deploy --with-registry-auth --compose-file=docker-compose.deploy.yml "${STACK_NAME}"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "homol"'
+
+build_prod:
+  extends: .build
+  environment:
+    name: production
+  variables:
+    DOCKER_IMAGE_TAG: latest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+test_prod:
+  extends: .test
+  needs:
+    - job: build_prod
+      optional: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+deploy_prod:
+  extends: .deploy
+  environment:
+    name: production
+    url: $APP_DOMAIN
+  variables:
+    DOCKER_IMAGE_TAG: latest
+    STACK_NAME: bico-api
+  needs:
+    - build_prod
+    - test_prod
+  script:
+    - export STACK_NAME="${STACK_NAME:-bico-api}"
+    - docker stack deploy --with-registry-auth --compose-file=docker-compose.deploy.yml "${STACK_NAME}"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+test_merge_request:
+  extends: .test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
