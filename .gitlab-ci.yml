@@ -14,6 +14,17 @@ variables:
 
 .ci_deploy_registry_login:
   before_script:
+    - |
+      case ",${ALLOWED_ORIGINS:-}," in
+        *",http://localhost:3000,"*) ;;
+        *)
+          if [ -n "${ALLOWED_ORIGINS:-}" ]; then
+            export ALLOWED_ORIGINS="${ALLOWED_ORIGINS},http://localhost:3000"
+          else
+            export ALLOWED_ORIGINS="http://localhost:3000"
+          fi
+          ;;
+      esac
     - env | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' | grep -v '^CI_COMMIT_MESSAGE=' | grep -v '^CI_COMMIT_TITLE=' | grep -v '^CI_COMMIT_DESCRIPTION=' > .env
     - echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
 
