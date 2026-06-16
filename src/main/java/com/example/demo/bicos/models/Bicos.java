@@ -40,8 +40,9 @@ public class Bicos {
     @Column
     private String description;
 
-    @Column(nullable=false)
-    private String city;
+    @ManyToOne
+    @JoinColumn(name = "cidade_id")
+    private Cidade cidade;
 
     @Column(nullable=false)
     private BigDecimal price;
@@ -67,14 +68,14 @@ public class Bicos {
     public Bicos() {
     }
 
-    public Bicos(Long id, User user, String name, String description, String city, BigDecimal price,
+    public Bicos(Long id, User user, String name, String description, Cidade cidade, BigDecimal price,
             BicosFilter bicosFilter, LocalDateTime dataHoraServico, Instant createdAt, Instant updatedAt,
             Instant deletedAt) {
         this.id = id;
         this.user = user;
         this.name = name;
         this.description = description;
-        this.city = city;
+        this.cidade = cidade;
         this.price = price;
         this.bicosFilter = bicosFilter;
         this.dataHoraServico = dataHoraServico;
@@ -115,12 +116,13 @@ public class Bicos {
         this.description = description;
     }
 
-    public String getCity() {
-        return city;
+    public Cidade getCidade() {
+        return cidade;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    // CORRIGIDO COMPLETAMENTE
+    public void setCidade(Cidade cidade) {
+        this.cidade = cidade;
     }
 
     public BigDecimal getPrice() {
@@ -170,7 +172,4 @@ public class Bicos {
     public void setDeletedAt(Instant deletedAt) {
         this.deletedAt = deletedAt;
     }
-
 }
-    
-

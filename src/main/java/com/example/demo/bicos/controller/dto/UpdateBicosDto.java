@@ -5,6 +5,6 @@ import java.time.LocalDateTime;
 
 import com.example.demo.bicos.models.BicosFilter;
 
-public record UpdateBicosDto(String name, String description, String city, BigDecimal price, BicosFilter bicosFilter, LocalDateTime dataHoraServico) {
+public record UpdateBicosDto(String name, String description, Long cidadeId, BigDecimal price, BicosFilter bicosFilter, LocalDateTime dataHoraServico) {
     
 }
