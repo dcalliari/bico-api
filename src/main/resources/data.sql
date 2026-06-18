@@ -125,3 +125,9 @@ INSERT INTO hist_aprov (
  'REJEITADO', 'Documentação incompleta', NOW())
 
 ON CONFLICT (id) DO NOTHING;
+
+-- Atualiza a sequência da tabela bicos para o próximo ID livre após os inserts manuais
+SELECT setval('bicos_id_seq', COALESCE((SELECT MAX(id) FROM bicos), 0) + 1, false);
+
+-- Faça o mesmo para a tabela candidatura
+SELECT setval('candidatura_id_seq', COALESCE((SELECT MAX(id) FROM candidatura), 0) + 1, false);
