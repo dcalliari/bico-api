@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record ErrorDto(
     String message, 
     int status, 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
     Instant timestamp,
     String path,
     Object details
