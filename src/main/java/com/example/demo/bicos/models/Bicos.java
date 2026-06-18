@@ -2,12 +2,11 @@ package com.example.demo.bicos.models;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.SQLDelete;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,7 +51,7 @@ public class Bicos {
     private BicosFilter bicosFilter;
 
     @Column(nullable=false)
-    private LocalDateTime dataHoraServico;
+    private Instant dataHoraServico;
 
     @CreationTimestamp
     @Column(name="created_at", updatable=false)
@@ -69,7 +68,7 @@ public class Bicos {
     }
 
     public Bicos(Long id, User user, String name, String description, Cidade cidade, BigDecimal price,
-            BicosFilter bicosFilter, LocalDateTime dataHoraServico, Instant createdAt, Instant updatedAt,
+            BicosFilter bicosFilter, Instant dataHoraServico, Instant createdAt, Instant updatedAt,
             Instant deletedAt) {
         this.id = id;
         this.user = user;
@@ -120,7 +119,6 @@ public class Bicos {
         return cidade;
     }
 
-    // CORRIGIDO COMPLETAMENTE
     public void setCidade(Cidade cidade) {
         this.cidade = cidade;
     }
@@ -141,11 +139,11 @@ public class Bicos {
         this.bicosFilter = bicosFilter;
     }
 
-    public LocalDateTime getDataHoraServico() {
+    public Instant getDataHoraServico() {
         return dataHoraServico;
     }
 
-    public void setDataHoraServico(LocalDateTime dataHoraServico) {
+    public void setDataHoraServico(Instant dataHoraServico) {
         this.dataHoraServico = dataHoraServico;
     }
 
