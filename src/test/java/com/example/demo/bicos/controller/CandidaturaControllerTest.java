@@ -1,7 +1,7 @@
 package com.example.demo.bicos.controller;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +40,8 @@ public class CandidaturaControllerTest {
     private UserRepository userRepo;
     @Autowired
     private BicosRepository bicosRepo;
+    @Autowired
+    private com.example.demo.bicos.repo.CidadeRepository cidadeRepo;
 
     private final String BASE_URL = "/api/v1/candidaturas";
 
@@ -57,8 +59,9 @@ public class CandidaturaControllerTest {
     Bicos bico = new Bicos();
     bico.setName("Bico Teste");
     bico.setPrice(new BigDecimal("100.00"));
-    bico.setCity("Belém");
-    bico.setDataHoraServico(LocalDateTime.now().plusDays(1));
+    var cidade = cidadeRepo.findById(1L).orElse(null);
+    bico.setCidade(cidade);
+    bico.setDataHoraServico(Instant.now().plusSeconds(3600)); 
     bico.setUser(dono);
     bico.setBicosFilter(BicosFilter.TI); 
     
@@ -69,8 +72,9 @@ public class CandidaturaControllerTest {
     Bicos bico = new Bicos();
     bico.setName("Bico Teste 2");
     bico.setPrice(new BigDecimal("200.00"));
-    bico.setCity("Belém");
-    bico.setDataHoraServico(LocalDateTime.now().plusDays(1));
+    var cidade = cidadeRepo.findById(1L).orElse(null);
+    bico.setCidade(cidade);
+    bico.setDataHoraServico(Instant.now().plusSeconds(3600));
     bico.setUser(dono);
     bico.setBicosFilter(BicosFilter.TI); 
     
