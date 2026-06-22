@@ -1,7 +1,7 @@
 package com.example.demo.bicos.models;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
@@ -51,25 +51,25 @@ public class Bicos {
     private BicosFilter bicosFilter;
 
     @Column(nullable=false)
-    private Instant dataHoraServico;
+    private LocalDateTime dataHoraServico;
 
     @CreationTimestamp
     @Column(name="created_at", updatable=false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private Instant deletedAt;
+    private LocalDateTime deletedAt;
     
     public Bicos() {
     }
 
     public Bicos(Long id, User user, String name, String description, Cidade cidade, BigDecimal price,
-            BicosFilter bicosFilter, Instant dataHoraServico, Instant createdAt, Instant updatedAt,
-            Instant deletedAt) {
+            BicosFilter bicosFilter, LocalDateTime dataHoraServico, LocalDateTime createdAt, LocalDateTime updatedAt,
+            LocalDateTime deletedAt) {
         this.id = id;
         this.user = user;
         this.name = name;
@@ -139,35 +139,35 @@ public class Bicos {
         this.bicosFilter = bicosFilter;
     }
 
-    public Instant getDataHoraServico() {
+    public LocalDateTime getDataHoraServico() {
         return dataHoraServico;
     }
 
-    public void setDataHoraServico(Instant dataHoraServico) {
+    public void setDataHoraServico(LocalDateTime dataHoraServico) {
         this.dataHoraServico = dataHoraServico;
     }
 
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Instant getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Instant getDeletedAt() {
+    public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(Instant deletedAt) {
+    public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 }

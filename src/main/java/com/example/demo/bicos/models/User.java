@@ -1,6 +1,6 @@
 package com.example.demo.bicos.models;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -54,14 +54,14 @@ public class User implements UserDetails {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
     
     @Column(name = "deleted_at")
-    private Instant deletedAt;
+    private LocalDateTime deletedAt;
 
     @JsonIgnore
     @OneToMany(mappedBy="user")
@@ -74,8 +74,8 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(UUID id, String login, String mail, String password, Instant createdAt,
-            Instant updatedAt, Instant deletedAt) {
+    public User(UUID id, String login, String mail, String password, LocalDateTime createdAt,
+            LocalDateTime updatedAt, LocalDateTime deletedAt) {
         this.id = id;
         this.login = login;
         this.mail = mail;
@@ -135,31 +135,31 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
 
-    public Instant getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public Instant getDeletedAt() {
+    public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
 
 
-    public void setDeletedAt(Instant deletedAt) {
+    public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 

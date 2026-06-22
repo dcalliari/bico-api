@@ -1,6 +1,6 @@
 package com.example.demo.bicos.models;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -40,13 +40,13 @@ public class HistAprovacao {
 
     @CreationTimestamp
     @Column(name="data_aprovacao")
-    private Instant dataAprovacao;
+    private LocalDateTime dataAprovacao;
 
     public HistAprovacao() {
     }
 
     public HistAprovacao(Long id, Candidatura candidatura, User user, HistAprovacaoStatus decisao, String motivo,
-            Instant dataAprovacao) {
+            LocalDateTime dataAprovacao) {
         this.id = id;
         this.candidatura = candidatura;
         this.user = user;
@@ -95,11 +95,11 @@ public class HistAprovacao {
         this.motivo = motivo;
     }
 
-    public Instant getDataAprovacao() {
+    public LocalDateTime getDataAprovacao() {
         return dataAprovacao;
     }
 
-    public void setDataAprovacao(Instant dataAprovacao) {
+    public void setDataAprovacao(LocalDateTime dataAprovacao) {
         this.dataAprovacao = dataAprovacao;
     }
 
