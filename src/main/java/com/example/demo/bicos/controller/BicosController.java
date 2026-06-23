@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.bicos.controller.dto.BicosPaginadosDto;
-import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.ListBicosDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
 import com.example.demo.bicos.controller.dto.UpdateBicosDto;
-import com.example.demo.bicos.models.CandidaturaStatus;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.BicosService;
 

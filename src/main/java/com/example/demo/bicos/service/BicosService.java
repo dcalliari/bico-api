@@ -13,16 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.bicos.controller.dto.BicosPaginadosDto;
-import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.ListBicosDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
 import com.example.demo.bicos.controller.dto.UpdateBicosDto;
 import com.example.demo.bicos.models.Bicos;
-import com.example.demo.bicos.models.Cidade; // Importação necessária
+import com.example.demo.bicos.models.Cidade;
 import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
-import com.example.demo.bicos.repo.CidadeRepository; // Injetado abaixo
+import com.example.demo.bicos.repo.CidadeRepository;
 import com.example.demo.bicos.repo.UserRepository;
 
 @Service
