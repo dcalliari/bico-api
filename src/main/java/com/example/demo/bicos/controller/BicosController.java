@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.bicos.controller.dto.BicosPaginadosDto;
+import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.ListBicosDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
 import com.example.demo.bicos.controller.dto.UpdateBicosDto;
+import com.example.demo.bicos.models.CandidaturaStatus;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.BicosService;
 
@@ -79,6 +82,7 @@ public class BicosController {
     }
 
     @Operation(summary = "Deletar bicos por ID")
+    @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
     @DeleteMapping("/{bicosId}/deletar")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Bico deletado com sucesso"),
@@ -94,6 +98,7 @@ public class BicosController {
     }
 
     @Operation(summary = "Atualizar bicos por ID")
+    @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
     @PatchMapping("/{bicosId}/atualizar")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Bico atualizado com sucesso"),
@@ -109,5 +114,24 @@ public class BicosController {
         bicosService.updateBicos(user.getId().toString(), bicosId, updateBicosDto);
         
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Ver meus bicos registrados")
+    @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Bicos listados com sucesso"),
+        @ApiResponse(responseCode = "401", description = "Usuário não autenticado", content = @Content()),
+        @ApiResponse(responseCode = "403", description = "Acesso não autorizado para este usuário", content = @Content())
+    })
+    @GetMapping("/usuario")
+    public ResponseEntity<List<BicosPaginadosDto>> getMeusBicos(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size){
+        
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var aprovador = (User) authentication.getPrincipal();
+        
+        Page<BicosPaginadosDto> bicosPage = bicosService.meusBicosPaginados(aprovador.getId().toString(), page, size);
+        
+        return ResponseEntity.ok(bicosPage.getContent());
     }
 }
