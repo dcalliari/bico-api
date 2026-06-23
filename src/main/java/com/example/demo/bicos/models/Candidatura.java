@@ -1,6 +1,6 @@
 package com.example.demo.bicos.models;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,7 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -41,7 +40,7 @@ public class Candidatura {
 
     @CreationTimestamp
     @Column(name="data_solicitacao")
-    private Instant dataSolicitacao;
+    private LocalDateTime dataSolicitacao;
 
     @JsonIgnore
     @OneToMany(mappedBy = "candidatura")
@@ -50,7 +49,7 @@ public class Candidatura {
     public Candidatura() {
     }
 
-    public Candidatura(Long id, User user, Bicos bicos, CandidaturaStatus status, Instant dataSolicitacao) {
+    public Candidatura(Long id, User user, Bicos bicos, CandidaturaStatus status, LocalDateTime dataSolicitacao) {
         this.id = id;
         this.user = user;
         this.bicos = bicos;
@@ -90,11 +89,11 @@ public class Candidatura {
         this.status = status;
     }
 
-    public Instant getDataSolicitacao() {
+    public LocalDateTime getDataSolicitacao() {
         return dataSolicitacao;
     }
 
-    public void setDataSolicitacao(Instant dataSolicitacao) {
+    public void setDataSolicitacao(LocalDateTime dataSolicitacao) {
         this.dataSolicitacao = dataSolicitacao;
     }
 

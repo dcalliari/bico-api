@@ -1,0 +1,46 @@
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY,
+    login VARCHAR(255),
+    mail VARCHAR(255),
+    password VARCHAR(255),
+    role VARCHAR(255),
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS cidades (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS bicos (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    cidade_id BIGINT REFERENCES cidades(id),
+    price NUMERIC(19,2) NOT NULL,
+    bicos_filter VARCHAR(255) NOT NULL,
+    data_hora_servico TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE IF NOT EXISTS candidatura (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    bicos_id BIGINT REFERENCES bicos(id),
+    status VARCHAR(255),
+    data_solicitacao TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS hist_aprov (
+    id BIGSERIAL PRIMARY KEY,
+    candidatura_id BIGINT REFERENCES candidatura(id),
+    user_id UUID REFERENCES users(id),
+    decisao VARCHAR(255),
+    motivo TEXT,
+    data_aprovacao TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

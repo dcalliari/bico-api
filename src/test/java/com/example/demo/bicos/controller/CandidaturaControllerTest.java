@@ -1,7 +1,7 @@
 package com.example.demo.bicos.controller;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -63,7 +63,7 @@ public class CandidaturaControllerTest {
     bico.setPrice(new BigDecimal("100.00"));
     var cidade = cidadeRepo.findById(1L).orElse(null);
     bico.setCidade(cidade);
-    bico.setDataHoraServico(Instant.now().plusSeconds(3600)); 
+    bico.setDataHoraServico(LocalDateTime.now().plusSeconds(3600));
     bico.setUser(dono);
     bico.setBicosFilter(BicosFilter.TI); 
     
@@ -76,7 +76,7 @@ public class CandidaturaControllerTest {
     bico.setPrice(new BigDecimal("200.00"));
     var cidade = cidadeRepo.findById(1L).orElse(null);
     bico.setCidade(cidade);
-    bico.setDataHoraServico(Instant.now().plusSeconds(3600));
+    bico.setDataHoraServico(LocalDateTime.now().plusSeconds(3600));
     bico.setUser(dono);
     bico.setBicosFilter(BicosFilter.TI); 
     
