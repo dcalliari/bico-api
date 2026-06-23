@@ -21,6 +21,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      SWAGGER_SERVER_URL: ${SWAGGER_SERVER_URL}
     depends_on:
       - postgres
     networks:
