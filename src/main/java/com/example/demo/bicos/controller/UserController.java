@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.bicos.controller.dto.ListUsersDto;
+import com.example.demo.bicos.controller.dto.MyUserDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.UserService;
@@ -50,7 +51,7 @@ public class UserController {
         }
     
     @Operation(summary="Atualizar dados do usuário")
-    @PatchMapping("/me")
+    @PatchMapping("/update/me")
     public ResponseEntity<Void> updateMe(@RequestBody UpdateUserDto updateUserDto) {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     var user = (User) authentication.getPrincipal();
@@ -58,5 +59,14 @@ public class UserController {
     userService.updateUser(user.getId(), updateUserDto);
     
     return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Detalhes do usuário autenticado")
+    @GetMapping("/me")
+    public ResponseEntity<List<MyUserDto>> myUserDetails() {
+    var authentication = SecurityContextHolder.getContext().getAuthentication();
+    var user = (User) authentication.getPrincipal();
+
+    return ResponseEntity.ok(userService.myUserDetails(user.getId().toString()));
     }
 }

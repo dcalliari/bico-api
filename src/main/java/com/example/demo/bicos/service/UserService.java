@@ -1,17 +1,23 @@
 package com.example.demo.bicos.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.bicos.controller.dto.ListUsersDto;
+import com.example.demo.bicos.controller.dto.MyUserDto;
 import com.example.demo.bicos.controller.dto.UpdateUserByIdDto;
 import com.example.demo.bicos.controller.dto.UpdateUserDto;
 import com.example.demo.bicos.controller.dto.UpdateUserRoleDto;
@@ -58,8 +64,16 @@ public class UserService {
                 user.setLogin(updateUserbyIdDto.login());
             }
 
+            if (updateUserbyIdDto.fullName() != null){
+                user.setFullName(updateUserbyIdDto.fullName());
+            }
+
             if (updateUserbyIdDto.mail() != null){
                 user.setMail(updateUserbyIdDto.mail());
+            }
+
+            if (updateUserbyIdDto.cpf() != null){
+                user.setCpf(updateUserbyIdDto.cpf());
             }
 
             userRepo.save(user);
@@ -92,6 +106,12 @@ public class UserService {
 
         userRepo.save(user);
     }
-}
+}   
+
+    public List<MyUserDto> myUserDetails(String userId) {
+    UUID usuarioId = UUID.fromString(userId);
     
+    return userRepo.queryById(usuarioId); 
+}
+
 }

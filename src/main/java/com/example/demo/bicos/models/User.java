@@ -42,8 +42,14 @@ public class User implements UserDetails {
     @Column
     private String login;
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @Column
     private String mail;
+
+    @Column(unique = true)
+    private String cpf;
 
     @Column
     private String password;
@@ -74,25 +80,28 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(UUID id, String login, String mail, String password, LocalDateTime createdAt,
-            LocalDateTime updatedAt, LocalDateTime deletedAt) {
+    public User(UUID id, String login, String fullName, String mail, String cpf, String password,
+            LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime deletedAt) {
         this.id = id;
         this.login = login;
+        this.fullName = fullName;
         this.mail = mail;
+        this.cpf = cpf;
         this.password = password;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
     }
 
-
-
-    public User(String login, String mail, String password, UserRole role) {
+    public User(String login, String fullName, String mail, String cpf, String password, UserRole role) {
         this.login = login;
+        this.fullName = fullName;
         this.mail = mail;
+        this.cpf = cpf;
         this.password = password;
         this.role = role;
     }
+    
 
     public UUID getId() {
         return id;
@@ -180,6 +189,23 @@ public class User implements UserDetails {
 
     public void setCandidaturas(List<Candidatura> candidaturas) {
         this.candidaturas = candidaturas;
+    }
+    
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     @Override

@@ -6,8 +6,8 @@ import java.util.UUID;
 import com.example.demo.bicos.models.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public record ListUsersDto(UUID id, String login, String mail, @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime createdAt, @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime deletedAt) {
+public record ListUsersDto(UUID id, String login, String fullName, String mail, String cpf, String password, @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime createdAt, @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime updatedAt, @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") LocalDateTime deletedAt) {
     public ListUsersDto(User user){
-        this(user.getId(), user.getLogin(), user.getMail(), user.getCreatedAt(), user.getDeletedAt());
+        this(user.getId(), user.getLogin(), user.getFullName(), user.getMail(), user.getCpf(), user.getPassword(), user.getCreatedAt(), user.getUpdatedAt(), user.getDeletedAt());
     }
 }
