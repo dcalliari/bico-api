@@ -1,4 +1,10 @@
+include:
+  - project: 'calliari/plane-webhook'
+    ref: homol
+    file: '/templates/plane-sync.yml'
+
 stages:
+  - sync-plane
   - build
   - test
   - deploy
