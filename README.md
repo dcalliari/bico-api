@@ -90,3 +90,7 @@ src/main/java/com/example/demo/
 Copie o arquivo de exemplo e preencha com suas credenciais:
 ```bash
 cp .env.example .env
+
+## Link da API
+
+https://bico-api.hml.defensoria.pa.def.br/
