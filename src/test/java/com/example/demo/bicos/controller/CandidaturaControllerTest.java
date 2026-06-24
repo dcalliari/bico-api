@@ -49,7 +49,9 @@ public class CandidaturaControllerTest {
 
     private User criarUsuario(UserRole role) {
         User user = new User();
+        user.setFullName("User " + role);
         user.setMail(UUID.randomUUID() + "@teste.com");
+        user.setCpf(UUID.randomUUID().toString().substring(0, 11));
         user.setRole(role);
         user.setPassword("123");
         user.setLogin("user_" + role + "_" + UUID.randomUUID());
