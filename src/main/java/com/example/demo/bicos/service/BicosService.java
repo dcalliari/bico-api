@@ -7,19 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.bicos.controller.dto.BicosPaginadosDto;
 import com.example.demo.bicos.controller.dto.GetBicosByIdDto;
 import com.example.demo.bicos.controller.dto.ListBicosDto;
 import com.example.demo.bicos.controller.dto.RegisterBicosDto;
 import com.example.demo.bicos.controller.dto.UpdateBicosDto;
 import com.example.demo.bicos.models.Bicos;
-import com.example.demo.bicos.models.Cidade; // Importação necessária
+import com.example.demo.bicos.models.Cidade;
 import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
-import com.example.demo.bicos.repo.CidadeRepository; // Injetado abaixo
+import com.example.demo.bicos.repo.CidadeRepository;
 import com.example.demo.bicos.repo.UserRepository;
 
 @Service
@@ -45,6 +47,14 @@ public class BicosService {
         }
         
         return bicosPage.map(ListBicosDto::new);
+    }
+
+    public Page<BicosPaginadosDto> meusBicosPaginados(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        UUID aprovador = UUID.fromString(userId);
+        
+        return bicosRepo.findByUserId(aprovador, pageable)
+            .map(BicosPaginadosDto::new);
     }
 
     public Long registerBicos(String userId, RegisterBicosDto registerBicosDto) {
