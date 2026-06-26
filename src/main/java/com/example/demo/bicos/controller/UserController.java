@@ -51,7 +51,7 @@ public class UserController {
         }
     
     @Operation(summary="Atualizar dados do usuário")
-    @PatchMapping("/update/me")
+    @PatchMapping("/me/update")
     public ResponseEntity<Void> updateMe(@RequestBody UpdateUserDto updateUserDto) {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
     var user = (User) authentication.getPrincipal();
