@@ -24,6 +24,7 @@ import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
 import com.example.demo.bicos.repo.CandidaturaRepository;
+import com.example.demo.bicos.repo.CidadeRepository;
 import com.example.demo.bicos.repo.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -43,7 +44,7 @@ public class CandidaturaControllerTest {
     @Autowired
     private BicosRepository bicosRepo;
     @Autowired
-    private com.example.demo.bicos.repo.CidadeRepository cidadeRepo;
+    private CidadeRepository cidadeRepo;
 
     private final String BASE_URL = "/api/v1/candidaturas";
 
@@ -59,32 +60,32 @@ public class CandidaturaControllerTest {
     }
 
     private Bicos criarBico() {
-    User dono = criarUsuario(UserRole.ADMIN);
-    Bicos bico = new Bicos();
-    bico.setName("Bico Teste");
-    bico.setPrice(new BigDecimal("100.00"));
-    var cidade = cidadeRepo.findById(1L).orElse(null);
-    bico.setCidade(cidade);
-    bico.setDataHoraServico(LocalDateTime.now().plusSeconds(3600));
-    bico.setUser(dono);
-    bico.setBicosFilter(BicosFilter.TI); 
-    
-    return bicosRepo.save(bico);
-}   
-    private Bicos criarBico2() {
-    User dono = criarUsuario(UserRole.ADMIN);
-    Bicos bico = new Bicos();
-    bico.setName("Bico Teste 2");
-    bico.setPrice(new BigDecimal("200.00"));
-    var cidade = cidadeRepo.findById(1L).orElse(null);
-    bico.setCidade(cidade);
-    bico.setDataHoraServico(LocalDateTime.now().plusSeconds(3600));
-    bico.setUser(dono);
-    bico.setBicosFilter(BicosFilter.TI); 
-    
-    return bicosRepo.save(bico);
-}
+        User dono = criarUsuario(UserRole.ADMIN);
+        Bicos bico = new Bicos();
+        bico.setName("Bico Teste");
+        bico.setPrice(new BigDecimal("100.00"));
+        var cidade = cidadeRepo.findById(1L).orElse(null);
+        bico.setCidade(cidade);
+        bico.setDataHoraServico(LocalDateTime.now().plusSeconds(3600));
+        bico.setUser(dono);
+        bico.setBicosFilter(BicosFilter.TI);
 
+        return bicosRepo.save(bico);
+    }
+
+    private Bicos criarBico2() {
+        User dono = criarUsuario(UserRole.ADMIN);
+        Bicos bico = new Bicos();
+        bico.setName("Bico Teste 2");
+        bico.setPrice(new BigDecimal("200.00"));
+        var cidade = cidadeRepo.findById(1L).orElse(null);
+        bico.setCidade(cidade);
+        bico.setDataHoraServico(LocalDateTime.now().plusSeconds(3600));
+        bico.setUser(dono);
+        bico.setBicosFilter(BicosFilter.TI);
+
+        return bicosRepo.save(bico);
+    }
 
     private Candidatura criarCandidatura(Bicos bico, CandidaturaStatus status) {
         Candidatura cand = new Candidatura();
@@ -99,6 +100,7 @@ public class CandidaturaControllerTest {
     void testFluxoAprovacaoN1() throws Exception {
         Bicos bico = criarBico();
         Candidatura cand = criarCandidatura(bico, CandidaturaStatus.PENDENTE);
+
         User n1 = criarUsuario(UserRole.APROVADOR_N1);
 
         mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/aprovar").with(user(n1)))
@@ -160,35 +162,35 @@ public class CandidaturaControllerTest {
 
         mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/rejeitar")
                 .with(user(n2))
-                .param("motivo", "Documentação incompleta")) 
+                .param("motivo", "Documentação incompleta"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Listar minhas candidaturas com filtro por status")
     void testListarMinhasCandidaturas() throws Exception {
-    User freelancer = criarUsuario(UserRole.FREELANCER);
-    
-    Bicos bico1 = criarBico();
-    Bicos bico2 = criarBico2(); 
+        User freelancer = criarUsuario(UserRole.FREELANCER);
 
-    Candidatura c1 = new Candidatura();
-    c1.setBicos(bico1);
-    c1.setStatus(CandidaturaStatus.PENDENTE);
-    c1.setUser(freelancer); 
-    candidaturaRepo.save(c1);
+        Bicos bico1 = criarBico();
+        Bicos bico2 = criarBico2();
 
-    Candidatura c2 = new Candidatura();
-    c2.setBicos(bico2);
-    c2.setStatus(CandidaturaStatus.AGUARDANDO_N2);
-    c2.setUser(freelancer); 
-    candidaturaRepo.save(c2);
+        Candidatura c1 = new Candidatura();
+        c1.setBicos(bico1);
+        c1.setStatus(CandidaturaStatus.PENDENTE);
+        c1.setUser(freelancer);
+        candidaturaRepo.save(c1);
 
-    mockMvc.perform(get(BASE_URL + "/usuario") 
-            .with(user(freelancer))
-            .param("page", "0")
-            .param("size", "10"))
-            .andExpect(status().isOk());
-}
+        Candidatura c2 = new Candidatura();
+        c2.setBicos(bico2);
+        c2.setStatus(CandidaturaStatus.AGUARDANDO_N2);
+        c2.setUser(freelancer);
+        candidaturaRepo.save(c2);
+
+        mockMvc.perform(get(BASE_URL + "/usuario")
+                .with(user(freelancer))
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk());
+    }
 
 }
