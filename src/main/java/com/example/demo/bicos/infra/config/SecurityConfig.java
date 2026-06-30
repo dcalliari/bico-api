@@ -48,7 +48,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                // Adiciona o filtro de CORS no topo da cadeia do Security
                 .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
