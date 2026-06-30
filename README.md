@@ -91,6 +91,12 @@ Copie o arquivo de exemplo e preencha com suas credenciais:
 ```bash
 cp .env.example .env
 
+| Variável | Descrição | Exemplo (Local/Dev) |
+| -------- | --------- | ------------------- |
+| `DB_URL` | URL de conexão com o banco PostgreSQL | `jdbc:postgresql://localhost:5432/bicos_db` |
+| `JWT_SECRET` | Chave secreta usada para assinar e validar os tokens JWT | `sua-chave-secreta-com-pelo-menos-32-caracteres` |
+| `CORS_ORIGIN` | Origens permitidas pelo CORS (separadas por vírgula se mais de uma) | `http://localhost:3000` |
+
 ## Link da API
 
 https://bico-api.hml.defensoria.pa.def.br/
