@@ -1,5 +1,7 @@
 package com.example.demo.bicos.controller.dto;
 
-public record UpdateUserDto(String login, String fullName, String mail, String cpf) {
+import jakarta.validation.constraints.Email;
+
+public record UpdateUserDto(String login, String fullName, @Email String mail) {
     
 }

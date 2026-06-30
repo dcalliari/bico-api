@@ -3,16 +3,12 @@ package com.example.demo.bicos.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties.Authentication;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -72,10 +68,6 @@ public class UserService {
                 user.setMail(updateUserbyIdDto.mail());
             }
 
-            if (updateUserbyIdDto.cpf() != null){
-                user.setCpf(updateUserbyIdDto.cpf());
-            }
-
             userRepo.save(user);
         }
     }
@@ -99,6 +91,10 @@ public class UserService {
         if (updateUserDto.login() != null) {
             user.setLogin(updateUserDto.login());
         }
+
+        if (updateUserDto.fullName() != null) {
+            user.setFullName(updateUserDto.fullName());
+}
 
         if (updateUserDto.mail() != null) {
             user.setMail(updateUserDto.mail());
