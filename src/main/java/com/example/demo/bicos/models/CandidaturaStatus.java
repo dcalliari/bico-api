@@ -3,14 +3,15 @@ package com.example.demo.bicos.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-@JsonFormat(shape= JsonFormat.Shape.OBJECT)
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum CandidaturaStatus {
-    
+
     PENDENTE("P", "Pendente"),
     AGUARDANDO_N2("N2", "Aguardando N2"),
     AGUARDANDO_N3("N3", "Aguardando N3"),
     APROVADO("A", "Aprovado"),
-    REJEITADO("R", "Rejeitado");
+    REJEITADO("R", "Rejeitado"),
+    DEVOLVIDO("D", "Devolvido");
 
     private final String codigo;
     private final String descricao;
@@ -23,12 +24,13 @@ public enum CandidaturaStatus {
     public String getCodigo() {
         return codigo;
     }
+
     public String getDescricao() {
         return descricao;
     }
-    
+
     @JsonCreator
-    public static CandidaturaStatus doValor(String codigo){
+    public static CandidaturaStatus doValor(String codigo) {
         if (codigo == null) {
             throw new IllegalArgumentException("Código não pode ser null");
         }
@@ -40,5 +42,3 @@ public enum CandidaturaStatus {
         throw new IllegalArgumentException("Código inválido: " + codigo);
     }
 }
-    
-
