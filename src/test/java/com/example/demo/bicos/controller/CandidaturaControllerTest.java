@@ -193,4 +193,31 @@ public class CandidaturaControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @DisplayName("Listar candidaturas pendentes no nivel N1")
+    void testListarCandidaturasPendentesN1() throws Exception {
+        User n1 = criarUsuario(UserRole.APROVADOR_N1);
+
+        Bicos bico1 = criarBico();
+        Bicos bico2 = criarBico2();
+
+        Candidatura c1 = new Candidatura();
+        c1.setBicos(bico1);
+        c1.setStatus(CandidaturaStatus.PENDENTE);
+        c1.setUser(criarUsuario(UserRole.FREELANCER));
+        candidaturaRepo.save(c1);
+
+        Candidatura c2 = new Candidatura();
+        c2.setBicos(bico2);
+        c2.setStatus(CandidaturaStatus.PENDENTE);
+        c2.setUser(criarUsuario(UserRole.FREELANCER));
+        candidaturaRepo.save(c2);
+
+        mockMvc.perform(get(BASE_URL + "/pendentes-nivel")
+                .with(user(n1))
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk());
+    }
+
 }
