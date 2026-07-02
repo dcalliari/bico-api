@@ -211,4 +211,52 @@ public class CandidaturaService {
                 .forEach(user -> notificationRepo.save(new Notification(user, title, description)));
     }
 
+    public void devolver(Long candidaturaId, String aprovadorId, String motivo) {
+        if (motivo == null || motivo.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Motivo obrigatório para devolução");
+        }
+
+        var candidatura = candidaturaRepo.findById(candidaturaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var aprovador = userRepo.findById(UUID.fromString(aprovadorId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        switch (aprovador.getRole()) {
+            case APROVADOR_N1 -> {
+                if (candidatura.getStatus() != CandidaturaStatus.PENDENTE) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "N1 só pode devolver candidaturas no status PENDENTE");
+                }
+            }
+            case APROVADOR_N2 -> {
+                if (candidatura.getStatus() != CandidaturaStatus.AGUARDANDO_N2) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "N2 só pode devolver candidaturas no status AGUARDANDO_N2");
+                }
+            }
+            case APROVADOR_N3 -> {
+                if (candidatura.getStatus() != CandidaturaStatus.AGUARDANDO_N3) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "N3 só pode devolver candidaturas no status AGUARDANDO_N3");
+                }
+            }
+            default ->
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não tem permissão para devolver");
+        }
+
+        candidatura.setStatus(CandidaturaStatus.DEVOLVIDO);
+        candidaturaRepo.save(candidatura);
+
+        HistAprovacao historico = new HistAprovacao();
+        historico.setCandidatura(candidatura);
+        historico.setUser(aprovador);
+        historico.setDecisao(HistAprovacaoStatus.REJEITADO);
+        historico.setMotivo("Devolvido pelo " + aprovador.getRole() + " para correção. Motivo: " + motivo);
+        histAprovacaoRepo.save(historico);
+
+        notificationRepo.save(new Notification(candidatura.getUser(), "Candidatura Devolvida",
+                "Sua candidatura foi devolvida pelo " + aprovador.getRole() + " para correção. Motivo: " + motivo));
+    }
+
 }
