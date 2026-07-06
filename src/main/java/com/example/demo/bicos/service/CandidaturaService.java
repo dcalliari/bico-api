@@ -23,6 +23,7 @@ import com.example.demo.bicos.repo.CandidaturaRepository;
 import com.example.demo.bicos.repo.HistAprovacaoRepository;
 import com.example.demo.bicos.repo.NotificationRepository;
 import com.example.demo.bicos.repo.UserRepository;
+import com.example.demo.bicos.controller.dto.HistAprovacaoDto;
 
 @Service
 public class CandidaturaService {
