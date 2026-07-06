@@ -31,12 +31,12 @@ import jakarta.persistence.Table;
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at is NULL")
 @EntityListeners(AuditingEntityListener.class)
-@Table(name="users")
+@Table(name = "users")
 public class User implements UserDetails {
-    
+
     @Id
-    @GeneratedValue(strategy=GenerationType.UUID)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
     private UUID id;
 
     @Column
@@ -65,12 +65,12 @@ public class User implements UserDetails {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @JsonIgnore
-    @OneToMany(mappedBy="user")
+    @OneToMany(mappedBy = "user")
     private List<Bicos> bicos;
 
     @JsonIgnore
@@ -101,7 +101,6 @@ public class User implements UserDetails {
         this.password = password;
         this.role = role;
     }
-    
 
     public UUID getId() {
         return id;
@@ -148,16 +147,13 @@ public class User implements UserDetails {
         return createdAt;
     }
 
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
@@ -167,11 +163,9 @@ public class User implements UserDetails {
         return deletedAt;
     }
 
-
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
-
 
     public List<Bicos> getBicos() {
         return bicos;
@@ -181,16 +175,13 @@ public class User implements UserDetails {
         this.bicos = bicos;
     }
 
-
     public List<Candidatura> getCandidaturas() {
         return candidaturas;
     }
 
-
     public void setCandidaturas(List<Candidatura> candidaturas) {
         this.candidaturas = candidaturas;
     }
-    
 
     public String getFullName() {
         return fullName;
@@ -210,46 +201,41 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-    if (this.role == UserRole.ADMIN) {
-        return List.of(
-            new SimpleGrantedAuthority("ROLE_ADMIN"),
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
-            new SimpleGrantedAuthority("ROLE_FREELANCER")
-        );
-    }
+        if (this.role == UserRole.ADMIN) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
+                    new SimpleGrantedAuthority("ROLE_FREELANCER"));
+        }
 
-    if (this.role == UserRole.APROVADOR_N3) {
-        return List.of(
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
-            new SimpleGrantedAuthority("ROLE_FREELANCER")
-        );
-    }
-    if (this.role == UserRole.APROVADOR_N2) {
-        return List.of(
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
-            new SimpleGrantedAuthority("ROLE_FREELANCER")
-        );
-    }
+        if (this.role == UserRole.APROVADOR_N3) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N3"),
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
+                    new SimpleGrantedAuthority("ROLE_FREELANCER"));
+        }
+        if (this.role == UserRole.APROVADOR_N2) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N2"),
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
+                    new SimpleGrantedAuthority("ROLE_FREELANCER"));
+        }
 
-    if (this.role == UserRole.APROVADOR_N1) {
-        return List.of(
-            new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
-            new SimpleGrantedAuthority("ROLE_FREELANCER")
-        );
-    }
+        if (this.role == UserRole.APROVADOR_N1) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_APROVADOR_N1"),
+                    new SimpleGrantedAuthority("ROLE_FREELANCER"));
+        }
 
-    return List.of(
-        new SimpleGrantedAuthority("ROLE_FREELANCER")
-    );
-}
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_FREELANCER"));
+    }
 
     @Override
-    public String getUsername() {   
+    public String getUsername() {
         return login;
     }
 

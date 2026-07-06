@@ -14,12 +14,12 @@ import com.example.demo.bicos.models.CandidaturaStatus;
 
 public interface CandidaturaRepository extends JpaRepository<Candidatura, Long> {
     boolean existsByBicos(Bicos bicos);
-    
+
     List<CandidaturasDto> findByUserId(UUID userId);
 
     List<CandidaturasDto> findByStatus(CandidaturaStatus status);
 
-    Page<Candidatura> findAllByStatus(CandidaturaStatus status, Pageable pageable); 
+    Page<Candidatura> findAllByStatus(CandidaturaStatus status, Pageable pageable);
 
     Page<Candidatura> findByUserId(UUID userId, Pageable pageable);
 }

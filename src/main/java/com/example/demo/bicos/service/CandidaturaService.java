@@ -259,4 +259,34 @@ public class CandidaturaService {
                 "Sua candidatura foi devolvida pelo " + aprovador.getRole() + " para correção. Motivo: " + motivo));
     }
 
+    public Long candidatarDevolvido(Long candidaturaId, String userId) {
+
+        var candidatura = candidaturaRepo.findById(candidaturaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        var user = userRepo.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!candidatura.getUser().getId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Só o dono da candidatura pode reenviar");
+        }
+
+        if (candidatura.getStatus() != CandidaturaStatus.DEVOLVIDO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Candidatura não está devolvida");
+        }
+
+        candidatura.setStatus(CandidaturaStatus.PENDENTE);
+        notificationRepo
+                .save(new Notification(user, "Candidatura reenviada",
+                        "Sua candidatura foi reenviada para análise no bico: " + candidatura.getBicos().getName()));
+
+        notifyApproversByRole(UserRole.APROVADOR_N1,
+                "Nova candidatura para aprovação",
+                String.format("Uma candidatura para o bico '%s' foi reenviada e está aguardando análise.",
+                        candidatura.getBicos().getName()));
+
+        return candidaturaRepo.save(candidatura).getId();
+    }
+
 }
