@@ -289,4 +289,15 @@ public class CandidaturaService {
         return candidaturaRepo.save(candidatura).getId();
     }
 
+        public Page<HistAprovacaoDto> meuHistoricoPaginado(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        UUID candidato = UUID.fromString(userId);
+
+        return histAprovacaoRepo.findByUserId(candidato, pageable).map(c -> new HistAprovacaoDto(
+                c.getId(),
+                c.getDecisao(),
+                c.getMotivo(),
+                c.getDataAprovacao()));
+    }
+
 }
