@@ -24,8 +24,6 @@ import com.example.demo.bicos.repo.HistAprovacaoRepository;
 import com.example.demo.bicos.repo.NotificationRepository;
 import com.example.demo.bicos.repo.UserRepository;
 
-import jakarta.transaction.Transactional;
-
 import com.example.demo.bicos.controller.dto.HistAprovacaoDto;
 
 @Service
@@ -198,11 +196,20 @@ public class CandidaturaService {
                 "Sua candidatura foi rejeitada pelo " + aprovador.getRole() + ". Motivo: " + motivo));
     }
 
-    public Page<CandidaturasDto> minhasCandidaturasPaginadas(String userId, int page, int size) {
+    public Page<CandidaturasDto> minhasCandidaturasPaginadas(String userId, CandidaturaStatus status, int page,
+            int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         UUID candidato = UUID.fromString(userId);
 
-        return candidaturaRepo.findByUserId(candidato, pageable).map(c -> new CandidaturasDto(
+        Page<Candidatura> candidaturas;
+
+        if (status != null) {
+            candidaturas = candidaturaRepo.findByUserIdAndStatus(candidato, status, pageable);
+        } else {
+            candidaturas = candidaturaRepo.findByUserId(candidato, pageable);
+        }
+
+        return candidaturas.map(c -> new CandidaturasDto(
                 c.getId(),
                 c.getStatus(),
                 c.getDataSolicitacao(),

@@ -24,4 +24,6 @@ public interface CandidaturaRepository extends JpaRepository<Candidatura, Long> 
     Page<Candidatura> findByUserId(UUID userId, Pageable pageable);
 
     boolean existsByBicosAndUser(Bicos bicos, User user);
+
+    Page<Candidatura> findByUserIdAndStatus(UUID userId, CandidaturaStatus status, Pageable pageable);
 }
