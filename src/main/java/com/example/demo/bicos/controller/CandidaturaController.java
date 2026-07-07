@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.bicos.controller.dto.HistAprovacaoDto;
 import com.example.demo.bicos.controller.dto.CandidaturaPendenteDto;
 import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.controller.dto.RejectMotiveDto;
 import com.example.demo.bicos.models.CandidaturaStatus;
+import com.example.demo.bicos.models.HistAprovacao;
+import com.example.demo.bicos.models.HistAprovacaoStatus;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.CandidaturaService;
 
@@ -130,4 +133,53 @@ public class CandidaturaController {
 
                 return ResponseEntity.ok(bicosPage.getContent());
         }
+
+        @Operation(summary = "Devolver candidatura")
+        @PreAuthorize("hasAnyRole('APROVADOR_N1', 'APROVADOR_N2', 'APROVADOR_N3', 'ADMIN')")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Candidatura devolvida com sucesso"),
+                        @ApiResponse(responseCode = "401", description = "Usuário não autenticado", content = @Content()),
+                        @ApiResponse(responseCode = "403", description = "Acesso não autorizado para este usuário", content = @Content())
+        })
+        @PostMapping("/{id}/devolver")
+        public ResponseEntity<Void> devolver(@PathVariable Long id, RejectMotiveDto dto) {
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                var aprovador = (User) authentication.getPrincipal();
+                candidaturaService.devolver(id, aprovador.getId().toString(), dto.motivo());
+                return ResponseEntity.ok().build();
+        }
+
+        @Operation(summary = "Reenviar candidatura")
+        @PreAuthorize("hasAnyRole('FREELANCER', 'ADMIN')")
+        @ApiResponses(value = {
+                        @ApiResponse(responseCode = "200", description = "Candidatura reenviada com sucesso"),
+                        @ApiResponse(responseCode = "401", description = "Usuário não autenticado", content = @Content()),
+                        @ApiResponse(responseCode = "403", description = "Acesso não autorizado para este usuário", content = @Content())
+        })
+        @PostMapping("/{id}/reenviar")
+        public ResponseEntity<Void> reenviar(@PathVariable Long id) {
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                var candidato = (User) authentication.getPrincipal();
+                candidaturaService.candidatarDevolvido(id, candidato.getId().toString());
+                return ResponseEntity.ok().build();
+        }
+
+        @Operation(summary = "Listar histórico")
+        @PreAuthorize("hasAnyRole('FREELANCER', 'ADMIN')")
+        @GetMapping("/{id}/historico")
+        public ResponseEntity<List<HistAprovacaoDto>> listarHistorico(
+                        @RequestParam(required = false) HistAprovacaoStatus status,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
+
+                var authentication = SecurityContextHolder.getContext().getAuthentication();
+                var candidato = (User) authentication.getPrincipal();
+
+                Page<HistAprovacaoDto> bicosPage = candidaturaService.meuHistoricoPaginado(
+                                candidato.getId().toString(),
+                                page, size);
+
+                return ResponseEntity.ok(bicosPage.getContent());
+        }
+
 }

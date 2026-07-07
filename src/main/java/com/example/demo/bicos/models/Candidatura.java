@@ -20,26 +20,26 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="candidatura")
+@Table(name = "candidatura")
 public class Candidatura {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    
+
     @ManyToOne
     @JoinColumn(name = "bicos_id")
     private Bicos bicos;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="status")
+    @Column(name = "status")
     private CandidaturaStatus status;
 
     @CreationTimestamp
-    @Column(name="data_solicitacao")
+    @Column(name = "data_solicitacao")
     private LocalDateTime dataSolicitacao;
 
     @JsonIgnore
@@ -104,5 +104,5 @@ public class Candidatura {
     public void setHistAprovacao(List<HistAprovacao> histAprovacao) {
         this.histAprovacao = histAprovacao;
     }
-    
+
 }
