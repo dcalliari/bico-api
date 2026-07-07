@@ -106,6 +106,7 @@ public class CandidaturaController {
 
                 Page<CandidaturasDto> bicosPage = candidaturaService.minhasCandidaturasPaginadas(
                                 candidato.getId().toString(),
+                                status,
                                 page, size);
 
                 return ResponseEntity.ok(bicosPage.getContent());
