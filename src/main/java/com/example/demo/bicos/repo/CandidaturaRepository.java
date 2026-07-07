@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.models.Bicos;
 import com.example.demo.bicos.models.Candidatura;
 import com.example.demo.bicos.models.CandidaturaStatus;
+import com.example.demo.bicos.models.User;
 
 public interface CandidaturaRepository extends JpaRepository<Candidatura, Long> {
     boolean existsByBicos(Bicos bicos);
@@ -22,4 +22,6 @@ public interface CandidaturaRepository extends JpaRepository<Candidatura, Long> 
     Page<Candidatura> findAllByStatus(CandidaturaStatus status, Pageable pageable);
 
     Page<Candidatura> findByUserId(UUID userId, Pageable pageable);
+
+    boolean existsByBicosAndUser(Bicos bicos, User user);
 }

@@ -7,7 +7,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public enum HistAprovacaoStatus {
 
     APROVADO("A", "Aprovado"),
-    REJEITADO("R", "Rejeitado");
+    REJEITADO("R", "Rejeitado"),
+    PENDENTE("P", "Pendente"),
+    AGUARDANDO_N2("N2", "Aguardando N2"),
+    AGUARDANDO_N3("N3", "Aguardando N3"),
+    DEVOLVIDO("D", "Devolvido");
 
     private final String codigo;
     private final String descricao;
