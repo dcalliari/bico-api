@@ -1,5 +1,5 @@
-ALTER TABLE candidatura 
-DROP CONSTRAINT candidatura_status_check;
+ALTER TABLE candidatura
+DROP CONSTRAINT IF EXISTS candidatura_status_check;
 
 ALTER TABLE candidatura 
 ADD CONSTRAINT candidatura_status_check 
