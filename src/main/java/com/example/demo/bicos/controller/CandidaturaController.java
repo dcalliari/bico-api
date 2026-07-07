@@ -18,7 +18,6 @@ import com.example.demo.bicos.controller.dto.CandidaturaPendenteDto;
 import com.example.demo.bicos.controller.dto.CandidaturasDto;
 import com.example.demo.bicos.controller.dto.RejectMotiveDto;
 import com.example.demo.bicos.models.CandidaturaStatus;
-import com.example.demo.bicos.models.HistAprovacao;
 import com.example.demo.bicos.models.HistAprovacaoStatus;
 import com.example.demo.bicos.models.User;
 import com.example.demo.bicos.service.CandidaturaService;

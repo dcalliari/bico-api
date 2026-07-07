@@ -23,6 +23,9 @@ import com.example.demo.bicos.repo.CandidaturaRepository;
 import com.example.demo.bicos.repo.HistAprovacaoRepository;
 import com.example.demo.bicos.repo.NotificationRepository;
 import com.example.demo.bicos.repo.UserRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.example.demo.bicos.controller.dto.HistAprovacaoDto;
 
 @Service
@@ -55,14 +58,24 @@ public class CandidaturaService {
         var bico = bicosRepo.findById(bicoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (candidaturaRepo.existsByBicos(bico)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Já se candidatou");
+        if (candidaturaRepo.existsByBicosAndUser(bico, user)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Você já se candidatou a este bico.");
         }
 
         var candidatura = new Candidatura();
         candidatura.setUser(user);
         candidatura.setBicos(bico);
         candidatura.setStatus(CandidaturaStatus.PENDENTE);
+
+        var candidaturaSalva = candidaturaRepo.save(candidatura);
+
+        HistAprovacao hist = new HistAprovacao();
+        hist.setUser(user);
+        hist.setCandidatura(candidaturaSalva);
+        hist.setDecisao(HistAprovacaoStatus.PENDENTE);
+        hist.setMotivo("O candidato está no nível Pendente");
+        histAprovacaoRepo.save(hist);
+
         notificationRepo
                 .save(new Notification(user, "Candidatura realizada", "Você se candidatou ao bico: " + bico.getName()));
 
@@ -70,7 +83,7 @@ public class CandidaturaService {
                 "Nova candidatura para aprovação",
                 String.format("Uma nova candidatura para o bico '%s' está aguardando sua análise.", bico.getName()));
 
-        return candidaturaRepo.save(candidatura).getId();
+        return candidaturaSalva.getId();
     }
 
     public void aprovar(Long candidaturaId, String aprovadorId) {
@@ -87,6 +100,12 @@ public class CandidaturaService {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Candidatura não está pendente");
                 }
                 candidatura.setStatus(CandidaturaStatus.AGUARDANDO_N2);
+                HistAprovacao hist = new HistAprovacao();
+                hist.setUser(aprovador);
+                hist.setCandidatura(candidatura);
+                hist.setDecisao(HistAprovacaoStatus.AGUARDANDO_N2);
+                hist.setMotivo("O candidato está no nível Aguardando N2");
+                histAprovacaoRepo.save(hist);
                 notifyApproversByRole(UserRole.APROVADOR_N2,
                         "Nova aprovação pendente",
                         String.format("A candidatura para o bico '%s' passou para sua análise.",
@@ -98,6 +117,12 @@ public class CandidaturaService {
                             "Candidatura requer aprovação N1 primeiro");
                 }
                 candidatura.setStatus(CandidaturaStatus.AGUARDANDO_N3);
+                HistAprovacao hist = new HistAprovacao();
+                hist.setUser(aprovador);
+                hist.setCandidatura(candidatura);
+                hist.setDecisao(HistAprovacaoStatus.AGUARDANDO_N3);
+                hist.setMotivo("O candidato está no nível Aguardando N3");
+                histAprovacaoRepo.save(hist);
                 notifyApproversByRole(UserRole.APROVADOR_N3,
                         "Nova aprovação pendente",
                         String.format("A candidatura para o bico '%s' passou para sua análise.",
@@ -229,35 +254,58 @@ public class CandidaturaService {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "N1 só pode devolver candidaturas no status PENDENTE");
                 }
+                candidatura.setStatus(CandidaturaStatus.DEVOLVIDO);
+                HistAprovacao hist = new HistAprovacao();
+                hist.setUser(aprovador);
+                hist.setCandidatura(candidatura);
+                hist.setDecisao(HistAprovacaoStatus.DEVOLVIDO);
+                hist.setMotivo(motivo);
+                histAprovacaoRepo.save(hist);
+
+                Notification notification = new Notification();
+                notification.setUser(candidatura.getUser());
+                notification.setTitle("Candidatura Devolvida");
+                notification.setDescription("Sua candidatura foi devolvida pelo avaliador. Motivo: " + motivo);
+                notificationRepo.save(notification);
             }
             case APROVADOR_N2 -> {
                 if (candidatura.getStatus() != CandidaturaStatus.AGUARDANDO_N2) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "N2 só pode devolver candidaturas no status AGUARDANDO_N2");
                 }
+                candidatura.setStatus(CandidaturaStatus.PENDENTE);
+                HistAprovacao hist = new HistAprovacao();
+                hist.setUser(aprovador);
+                hist.setCandidatura(candidatura);
+                hist.setDecisao(HistAprovacaoStatus.PENDENTE);
+                hist.setMotivo(motivo);
+                histAprovacaoRepo.save(hist);
+                notifyApproversByRole(UserRole.APROVADOR_N2,
+                        "Candidatura devolvida pelo N3",
+                        String.format("O bico '%s' voltou para o nível N2. Motivo: %s",
+                                candidatura.getBicos().getName(), motivo));
             }
             case APROVADOR_N3 -> {
                 if (candidatura.getStatus() != CandidaturaStatus.AGUARDANDO_N3) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "N3 só pode devolver candidaturas no status AGUARDANDO_N3");
                 }
+                candidatura.setStatus(CandidaturaStatus.AGUARDANDO_N2);
+                HistAprovacao hist = new HistAprovacao();
+                hist.setUser(aprovador);
+                hist.setCandidatura(candidatura);
+                hist.setDecisao(HistAprovacaoStatus.AGUARDANDO_N2);
+                hist.setMotivo(motivo);
+                histAprovacaoRepo.save(hist);
+                notifyApproversByRole(UserRole.APROVADOR_N2,
+                        "Candidatura devolvida pelo N3",
+                        String.format("O bico '%s' voltou para o nível N2. Motivo: %s",
+                                candidatura.getBicos().getName(), motivo));
             }
             default ->
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não tem permissão para devolver");
         }
-
-        candidatura.setStatus(CandidaturaStatus.DEVOLVIDO);
         candidaturaRepo.save(candidatura);
-
-        HistAprovacao historico = new HistAprovacao();
-        historico.setCandidatura(candidatura);
-        historico.setUser(aprovador);
-        historico.setDecisao(HistAprovacaoStatus.REJEITADO);
-        historico.setMotivo("Devolvido pelo " + aprovador.getRole() + " para correção. Motivo: " + motivo);
-        histAprovacaoRepo.save(historico);
-
-        notificationRepo.save(new Notification(candidatura.getUser(), "Candidatura Devolvida",
-                "Sua candidatura foi devolvida pelo " + aprovador.getRole() + " para correção. Motivo: " + motivo));
     }
 
     public Long candidatarDevolvido(Long candidaturaId, String userId) {
@@ -278,6 +326,13 @@ public class CandidaturaService {
         }
 
         candidatura.setStatus(CandidaturaStatus.PENDENTE);
+        HistAprovacao hist = new HistAprovacao();
+        hist.setUser(user);
+        hist.setCandidatura(candidatura);
+        hist.setDecisao(HistAprovacaoStatus.PENDENTE);
+        hist.setMotivo("Candidatura reenviada");
+        histAprovacaoRepo.save(hist);
+
         notificationRepo
                 .save(new Notification(user, "Candidatura reenviada",
                         "Sua candidatura foi reenviada para análise no bico: " + candidatura.getBicos().getName()));
@@ -290,7 +345,7 @@ public class CandidaturaService {
         return candidaturaRepo.save(candidatura).getId();
     }
 
-        public Page<HistAprovacaoDto> meuHistoricoPaginado(String userId, int page, int size) {
+    public Page<HistAprovacaoDto> meuHistoricoPaginado(String userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         UUID candidato = UUID.fromString(userId);
 
