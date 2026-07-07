@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import com.example.demo.bicos.models.UserRole;
 import com.example.demo.bicos.repo.BicosRepository;
 import com.example.demo.bicos.repo.CandidaturaRepository;
 import com.example.demo.bicos.repo.CidadeRepository;
+import com.example.demo.bicos.repo.HistAprovacaoRepository;
 import com.example.demo.bicos.repo.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -45,6 +47,8 @@ public class CandidaturaControllerTest {
     private BicosRepository bicosRepo;
     @Autowired
     private CidadeRepository cidadeRepo;
+    @Autowired
+    private HistAprovacaoRepository histAprovacaoRepo;
 
     private final String BASE_URL = "/api/v1/candidaturas";
 
@@ -96,15 +100,19 @@ public class CandidaturaControllerTest {
     }
 
     @Test
-    @DisplayName("Deve passar de PENDENTE para AGUARDANDO_N2 quando N1 aprova")
+    @DisplayName("Deve passar de PENDENTE para AGUARDANDO_N2 quando N1 aprova e gravar HistAprovacao")
     void testFluxoAprovacaoN1() throws Exception {
         Bicos bico = criarBico();
         Candidatura cand = criarCandidatura(bico, CandidaturaStatus.PENDENTE);
-
         User n1 = criarUsuario(UserRole.APROVADOR_N1);
 
         mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/aprovar").with(user(n1)))
                 .andExpect(status().isOk());
+
+        boolean possuiHistorico = histAprovacaoRepo.findAll().stream()
+                .anyMatch(
+                        h -> h.getCandidatura().getId().equals(cand.getId()) && h.getUser().getId().equals(n1.getId()));
+        Assertions.assertTrue(possuiHistorico, "Histórico de aprovação deve ser gravado");
     }
 
     @Test
@@ -218,6 +226,73 @@ public class CandidaturaControllerTest {
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Devolver candidaturas no nível Pendente por N1 deve alterar status para DEVOLVIDO e gravar histórico")
+    void devolverPendente() throws Exception {
+        Bicos bico = criarBico();
+        Candidatura cand = criarCandidatura(bico, CandidaturaStatus.PENDENTE);
+        User n1 = criarUsuario(UserRole.APROVADOR_N1);
+
+        mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/devolver")
+                .with(user(n1))
+                .param("motivo", "Documentação incompleta"))
+                .andExpect(status().isOk());
+
+        Candidatura atualizada = candidaturaRepo.findById(cand.getId()).orElseThrow();
+        Assertions.assertEquals(CandidaturaStatus.DEVOLVIDO, atualizada.getStatus());
+
+        long totalHistoricos = histAprovacaoRepo.findAll().stream()
+                .filter(h -> h.getCandidatura().getId().equals(cand.getId())).count();
+        Assertions.assertTrue(totalHistoricos > 0, "Histórico deve registrar o passo de devolução");
+    }
+
+    @Test
+    @DisplayName("Erro ao aprovador N1 devolver candidaturas no nível AGUARDANDO_N2")
+    void devolverPendenteErro() throws Exception {
+        Bicos bico = criarBico();
+        Candidatura cand = criarCandidatura(bico, CandidaturaStatus.AGUARDANDO_N2);
+
+        User n1 = criarUsuario(UserRole.APROVADOR_N1);
+
+        mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/devolver")
+                .with(user(n1))
+                .param("motivo", "Documentação incompleta"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Erro 400 ou 403 ao aprovador N2 tentar devolver candidatura que está em nível PENDENTE (Nível Incorreto)")
+    void devolverAguardandoN2Erro() throws Exception {
+        Bicos bico = criarBico();
+        Candidatura cand = criarCandidatura(bico, CandidaturaStatus.PENDENTE);
+        User n2 = criarUsuario(UserRole.APROVADOR_N2);
+
+        mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/devolver")
+                .with(user(n2))
+                .param("motivo", "Não pertence ao seu nível de aprovação"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @DisplayName("Reenvio de candidatura após devolução deve voltar o status para PENDENTE e gravar histórico")
+    void reenviarCandidatura() throws Exception {
+        Bicos bico = criarBico();
+        User freelancer = criarUsuario(UserRole.FREELANCER);
+
+        Candidatura cand = new Candidatura();
+        cand.setBicos(bico);
+        cand.setStatus(CandidaturaStatus.DEVOLVIDO);
+        cand.setUser(freelancer);
+        candidaturaRepo.save(cand);
+
+        mockMvc.perform(post(BASE_URL + "/" + cand.getId() + "/reenviar")
+                .with(user(freelancer)))
+                .andExpect(status().isOk());
+
+        Candidatura atualizada = candidaturaRepo.findById(cand.getId()).orElseThrow();
+        Assertions.assertEquals(CandidaturaStatus.PENDENTE, atualizada.getStatus());
     }
 
 }
